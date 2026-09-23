@@ -71,7 +71,7 @@ def inicializar_or_cargar_rag():
     
     retriever = vector_store.as_retriever(search_kwargs={"k": 2})
     
-    # Nombre de modelo compatible con la versión actual de langchain-google-genai
+    # Modelo exacto compatible con las versiones actuales de la API de Google GenAI
     llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3)
     
     return retriever, llm
