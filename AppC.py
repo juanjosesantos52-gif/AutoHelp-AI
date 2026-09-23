@@ -17,10 +17,18 @@ st.set_page_config(
     layout="wide"
 )
 
+# Modelos en orden de preferencia.
+# Los gemini-1.5 y gemini-2.0 ya fueron retirados por Google (dan NotFound).
+MODELOS_PREFERIDOS = [
+    "gemini-3.5-flash",
+    "gemini-3.1-flash-lite",
+    "gemini-2.5-flash",
+]
+
 # --- BARRA LATERAL (SIDEBAR) ---
 with st.sidebar:
-    st.image("https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80", 
-             caption="AutoPartes AI - Sistema Cloud", 
+    st.image("https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80",
+             caption="AutoPartes AI - Sistema Cloud",
              use_container_width=True)
     st.markdown("### 🛠️ Panel de Control")
     st.info("Sistema RAG Híbrido Directo + Generador Visual.")
@@ -37,15 +45,33 @@ with col1:
     st.markdown("Asistente inteligente con recuperación directa y visualización exacta de componentes.")
 
 with col2:
-    st.image("https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=300&q=80", 
+    st.image("https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=300&q=80",
              use_container_width=True)
 
 DIRECTORIO_DB = "./chroma_db_repuestos"
 
+
+def elegir_modelo() -> str:
+    """Elige el primer modelo preferido que esté realmente disponible para tu API key."""
+    try:
+        disponibles = {
+            m.name.replace("models/", "")
+            for m in genai.list_models()
+            if "generateContent" in m.supported_generation_methods
+        }
+    except Exception:
+        disponibles = set()
+
+    for nombre in MODELOS_PREFERIDOS:
+        if nombre in disponibles:
+            return nombre
+    return MODELOS_PREFERIDOS[0]
+
+
 @st.cache_resource
 def inicializar_or_cargar_rag():
     catalogo_default = "catalogo_repuestos.txt"
-    
+
     if not os.path.exists(catalogo_default):
         with open(catalogo_default, "w", encoding="utf-8") as f:
             f.write(
@@ -70,22 +96,29 @@ def inicializar_or_cargar_rag():
         embedding=embeddings,
         persist_directory=DIRECTORIO_DB
     )
-    
-    retriever = vector_store.as_retriever(search_kwargs={"k": 2})
-    
-    # Detección dinámica del modelo disponible para evitar errores de tipo 'NotFound'
-    nombre_modelo = "gemini-2.0-flash"
-    try:
-        modelos_disponibles = [m.name for m in genai.list_models() if "generateContent" in m.supported_generation_methods]
-        for m in modelos_disponibles:
-            if "gemini-2.0-flash" in m or "gemini-1.5-flash" in m or "gemini-1.5-pro" in m:
-                nombre_modelo = m
-                break
-    except Exception:
-        nombre_modelo = "gemini-2.0-flash"
 
+    retriever = vector_store.as_retriever(search_kwargs={"k": 2})
+
+    nombre_modelo = elegir_modelo()
     model = genai.GenerativeModel(nombre_modelo)
-    return retriever, model
+    return retriever, model, nombre_modelo
+
+
+def generar_respuesta(model, nombre_modelo: str, prompt: str) -> str:
+    """Intenta con el modelo elegido y, si no existe, prueba los demás de la lista."""
+    candidatos = [nombre_modelo] + [m for m in MODELOS_PREFERIDOS if m != nombre_modelo]
+    ultimo_error = None
+
+    for nombre in candidatos:
+        try:
+            modelo = model if nombre == nombre_modelo else genai.GenerativeModel(nombre)
+            return modelo.generate_content(prompt).text
+        except Exception as e:
+            ultimo_error = e
+            continue
+
+    return f"⚠️ No pude generar la respuesta ({type(ultimo_error).__name__}). Intenta de nuevo en unos minutos."
+
 
 def obtener_imagen_repuesto(pregunta: str):
     p = pregunta.lower()
@@ -95,7 +128,7 @@ def obtener_imagen_repuesto(pregunta: str):
         return "https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80", "Repuesto Específico - Mazda"
     elif "toyota" in p or "corolla" in p:
         return "https://images.unsplash.com/photo-1590362891991-f776e747a588?auto=format&fit=crop&w=600&q=80", "Repuesto Específico - Toyota"
-    
+
     if "freno" in p or "pastillas" in p or "disco" in p:
         return "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=600&q=80", "Sistema de Frenos / Pastillas"
     elif "amortiguador" in p or "suspension" in p:
@@ -105,8 +138,11 @@ def obtener_imagen_repuesto(pregunta: str):
     else:
         return "https://images.unsplash.com/photo-1489824904134-891ab64532f1?auto=format&fit=crop&w=600&q=80", "Componente Mecánico Automotriz"
 
+
 with st.spinner("Inicializando motor híbrido directo..."):
-    retriever, model = inicializar_or_cargar_rag()
+    retriever, model, nombre_modelo = inicializar_or_cargar_rag()
+
+st.sidebar.caption(f"Modelo activo: {nombre_modelo}")
 
 st.divider()
 st.subheader("💬 Consulta Interactiva con Soporte Visual")
@@ -132,7 +168,7 @@ if pregunta_usuario:
         with st.spinner("Procesando consulta y seleccionando imagen del componente..."):
             docs_relacionados = retriever.invoke(pregunta_usuario)
             contexto_texto = "\n\n".join([doc.page_content for doc in docs_relacionados])
-            
+
             prompt_final = (
                 "Eres un experto asesor de repuestos automotrices, mecánico en jefe e historiador de vehículos.\n"
                 "Primero, revisa los fragmentos de contexto del catálogo local. Si la respuesta está ahí, úsala. "
@@ -140,19 +176,18 @@ if pregunta_usuario:
                 f"Contexto del Catálogo Local:\n{contexto_texto}\n\n"
                 f"Pregunta del Usuario: {pregunta_usuario}"
             )
-            
-            response = model.generate_content(prompt_final)
-            respuesta = response.text
-            
+
+            respuesta = generar_respuesta(model, nombre_modelo, prompt_final)
+
             url_img, caption_img = obtener_imagen_repuesto(pregunta_usuario)
-            
+
             st.markdown(respuesta)
             st.markdown(f'<img src="{url_img}" width="380" style="border-radius: 8px; margin-top: 10px;">', unsafe_allow_html=True)
             st.caption(caption_img)
-            
+
             st.session_state.mensajes.append({
-                "rol": "assistant", 
-                "contenido": respuesta, 
-                "imagen": url_img, 
+                "rol": "assistant",
+                "contenido": respuesta,
+                "imagen": url_img,
                 "caption": caption_img
             })
