@@ -3,5 +3,6 @@ langchain
 langchain-community
 langchain-chroma
 chromadb
+sentence-transformers
 google-generativeai
 langchain-google-genai
