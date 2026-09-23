@@ -5,8 +5,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import RetrievalQA
-from langchain_core.prompts import PromptTemplate
+from langchain_core.prompts import ChatPromptTemplate
 
 if "GOOGLE_API_KEY" in st.secrets:
     os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
@@ -23,7 +22,7 @@ with st.sidebar:
              caption="AutoPartes AI - Sistema Cloud", 
              use_container_width=True)
     st.markdown("### 🛠️ Panel de Control")
-    st.info("Sistema RAG Híbrido + Generador Visual Contextual.")
+    st.info("Sistema RAG Híbrido Directo + Generador Visual.")
     st.markdown("#### 📂 Catálogos Activos:")
     st.markdown("- Mazda 3 (2010-2013)")
     st.markdown("- Toyota Corolla (2014-2019)")
@@ -34,7 +33,7 @@ with st.sidebar:
 col1, col2 = st.columns([4, 1])
 with col1:
     st.title("🚗 AutoPartes AI: Buscador Visual de Repuestos")
-    st.markdown("Asistente inteligente con recuperación de texto y visualización exacta de componentes.")
+    st.markdown("Asistente inteligente con recuperación directa y visualización exacta de componentes.")
 
 with col2:
     st.image("https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=300&q=80", 
@@ -73,27 +72,8 @@ def inicializar_or_cargar_rag():
     
     retriever = vector_store.as_retriever(search_kwargs={"k": 2})
     llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3)
-
-    template = (
-        "Eres un experto asesor de repuestos automotrices, mecánico en jefe e historiador de vehículos.\n"
-        "Primero, revisa los fragmentos de contexto del catálogo local. Si la respuesta está ahí, úsala. "
-        "Si no, utiliza tu conocimiento general sobre la industria automotriz mundial para responder con precisión.\n\n"
-        "Contexto:\n{context}\n\n"
-        "Pregunta: {question}"
-    )
     
-    QA_CHAIN_PROMPT = PromptTemplate.from_template(template)
-
-    # Cadena clásica ultra estable que no falla en ningún servidor
-    rag_chain = RetrievalQA.from_chain_type(
-        llm=llm,
-        chain_type="stuff",
-        retriever=retriever,
-        return_source_documents=True,
-        chain_type_kwargs={"prompt": QA_CHAIN_PROMPT}
-    )
-    
-    return rag_chain
+    return retriever, llm
 
 def obtener_imagen_repuesto(pregunta: str):
     p = pregunta.lower()
@@ -113,8 +93,8 @@ def obtener_imagen_repuesto(pregunta: str):
     else:
         return "https://images.unsplash.com/photo-1489824904134-891ab64532f1?auto=format&fit=crop&w=600&q=80", "Componente Mecánico Automotriz"
 
-with st.spinner("Inicializando motor híbrido..."):
-    cadena_rag = inicializar_or_cargar_rag()
+with st.spinner("Inicializando motor híbrido directo..."):
+    retriever, llm = inicializar_or_cargar_rag()
 
 st.divider()
 st.subheader("💬 Consulta Interactiva con Soporte Visual")
@@ -138,9 +118,21 @@ if pregunta_usuario:
 
     with st.chat_message("assistant"):
         with st.spinner("Procesando consulta y seleccionando imagen del componente..."):
-            # Con RetrievalQA se invoca usando la llave "query" en lugar de "input"
-            resultado = cadena_rag.invoke({"query": pregunta_usuario})
-            respuesta = resultado["result"]
+            # Búsqueda manual de documentos relevantes
+            docs_relacionados = retriever.invoke(pregunta_usuario)
+            contexto_texto = "\n\n".join([doc.page_content for doc in docs_relacionados])
+            
+            prompt_final = (
+                "Eres un experto asesor de repuestos automotrices, mecánico en jefe e historiador de vehículos.\n"
+                "Primero, revisa los fragmentos de contexto del catálogo local. Si la respuesta está ahí, úsala. "
+                "Si no, utiliza tu conocimiento general sobre la industria automotriz mundial para responder con precisión.\n\n"
+                f"Contexto del Catálogo Local:\n{contexto_texto}\n\n"
+                f"Pregunta del Usuario: {pregunta_usuario}"
+            )
+            
+            # Llamada directa al modelo Gemini
+            respuesta_ai = llm.invoke(prompt_final)
+            respuesta = respuesta_ai.content
             
             url_img, caption_img = obtener_imagen_repuesto(pregunta_usuario)
             
