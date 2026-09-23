@@ -71,8 +71,8 @@ def inicializar_or_cargar_rag():
     
     retriever = vector_store.as_retriever(search_kwargs={"k": 2})
     
-    # Nombre de modelo con prefijo correcto para el SDK actualizado
-    llm = ChatGoogleGenerativeAI(model="models/gemini-1.5-flash", temperature=0.3)
+    # Nombre de modelo compatible con la versión actual de langchain-google-genai
+    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3)
     
     return retriever, llm
 
@@ -144,4 +144,4 @@ if pregunta_usuario:
                 "contenido": respuesta, 
                 "imagen": url_img, 
                 "caption": caption_img
-            })
+            })s
