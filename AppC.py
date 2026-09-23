@@ -1,13 +1,15 @@
 import os
 import streamlit as st
+import google.generativeai as genai
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_google_genai import ChatGoogleGenerativeAI
 
+# Configuración de la API Key de Google
 if "GOOGLE_API_KEY" in st.secrets:
     os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
+    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
 
 st.set_page_config(
     page_title="AutoPartes AI - Buscador Inteligente",
@@ -71,10 +73,10 @@ def inicializar_or_cargar_rag():
     
     retriever = vector_store.as_retriever(search_kwargs={"k": 2})
     
-    # Modelo exacto compatible con las versiones actuales de la API de Google GenAI
-    llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.3)
+    # Usamos la API nativa de Google GenAI
+    model = genai.GenerativeModel('gemini-1.5-flash')
     
-    return retriever, llm
+    return retriever, model
 
 def obtener_imagen_repuesto(pregunta: str):
     p = pregunta.lower()
@@ -95,7 +97,7 @@ def obtener_imagen_repuesto(pregunta: str):
         return "https://images.unsplash.com/photo-1489824904134-891ab64532f1?auto=format&fit=crop&w=600&q=80", "Componente Mecánico Automotriz"
 
 with st.spinner("Inicializando motor híbrido directo..."):
-    retriever, llm = inicializar_or_cargar_rag()
+    retriever, model = inicializar_or_cargar_rag()
 
 st.divider()
 st.subheader("💬 Consulta Interactiva con Soporte Visual")
@@ -130,8 +132,9 @@ if pregunta_usuario:
                 f"Pregunta del Usuario: {pregunta_usuario}"
             )
             
-            respuesta_ai = llm.invoke(prompt_final)
-            respuesta = respuesta_ai.content
+            # Llamada nativa sin wrappers intermedios
+            response = model.generate_content(prompt_final)
+            respuesta = response.text
             
             url_img, caption_img = obtener_imagen_repuesto(pregunta_usuario)
             
