@@ -5,7 +5,6 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_core.prompts import ChatPromptTemplate
 
 if "GOOGLE_API_KEY" in st.secrets:
     os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
@@ -71,7 +70,9 @@ def inicializar_or_cargar_rag():
     )
     
     retriever = vector_store.as_retriever(search_kwargs={"k": 2})
-    llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash", temperature=0.3)
+    
+    # Nombre de modelo con prefijo correcto para el SDK actualizado
+    llm = ChatGoogleGenerativeAI(model="models/gemini-1.5-flash", temperature=0.3)
     
     return retriever, llm
 
@@ -118,7 +119,6 @@ if pregunta_usuario:
 
     with st.chat_message("assistant"):
         with st.spinner("Procesando consulta y seleccionando imagen del componente..."):
-            # Búsqueda manual de documentos relevantes
             docs_relacionados = retriever.invoke(pregunta_usuario)
             contexto_texto = "\n\n".join([doc.page_content for doc in docs_relacionados])
             
@@ -130,7 +130,6 @@ if pregunta_usuario:
                 f"Pregunta del Usuario: {pregunta_usuario}"
             )
             
-            # Llamada directa al modelo Gemini
             respuesta_ai = llm.invoke(prompt_final)
             respuesta = respuesta_ai.content
             
