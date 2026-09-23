@@ -73,9 +73,18 @@ def inicializar_or_cargar_rag():
     
     retriever = vector_store.as_retriever(search_kwargs={"k": 2})
     
-    # Usamos la API nativa de Google GenAI
-    model = genai.GenerativeModel('gemini-1.5-flash')
-    
+    # Detección dinámica del modelo disponible para evitar errores de tipo 'NotFound'
+    nombre_modelo = "gemini-2.0-flash"
+    try:
+        modelos_disponibles = [m.name for m in genai.list_models() if "generateContent" in m.supported_generation_methods]
+        for m in modelos_disponibles:
+            if "gemini-2.0-flash" in m or "gemini-1.5-flash" in m or "gemini-1.5-pro" in m:
+                nombre_modelo = m
+                break
+    except Exception:
+        nombre_modelo = "gemini-2.0-flash"
+
+    model = genai.GenerativeModel(nombre_modelo)
     return retriever, model
 
 def obtener_imagen_repuesto(pregunta: str):
@@ -132,7 +141,6 @@ if pregunta_usuario:
                 f"Pregunta del Usuario: {pregunta_usuario}"
             )
             
-            # Llamada nativa sin wrappers intermedios
             response = model.generate_content(prompt_final)
             respuesta = response.text
             
