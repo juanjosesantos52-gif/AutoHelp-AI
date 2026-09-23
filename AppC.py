@@ -3,13 +3,15 @@ import streamlit as st
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_chroma import Chroma
-from langchain_google_genai import GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI
-from langchain_classic.chains import create_retrieval_chain
-from langchain_classic.chains.combine_documents import create_stuff_documents_chain
+# Usamos Hugging Face para embeddings gratuitos en la nube sin requerir API Key
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import ChatPromptTemplate
 
-# Configura tu API Key de Gemini como un Secret de Streamlit Cloud (o ponla temporalmente aquí para pruebas)
-# En Streamlit Cloud lo pondrás en la sección "Secrets" como GOOGLE_API_KEY
+# Si tienes una API key de Gemini que sí te sirva para el chat, puedes dejarla. 
+# Si no, puedes usar un modelo alternativo o la clave que tengas.
 if "GOOGLE_API_KEY" in st.secrets:
     os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
 
@@ -18,8 +20,6 @@ st.set_page_config(
     page_icon="🚗",
     layout="wide"
 )
-
-# ... (Tu barra lateral y diseño se mantienen igual) ...
 
 DIRECTORIO_DB = "./chroma_db_repuestos"
 
@@ -43,8 +43,9 @@ def inicializar_or_cargar_rag():
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=40)
     chunks = text_splitter.split_documents(documentos)
 
-    # Usamos embeddings y LLM en la nube de Google (Gratis y 24/7)
-    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    # Embeddings gratuitos de Hugging Face (no piden API Key ni dan errores de token)
+    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    
     vector_store = Chroma.from_documents(
         documents=chunks,
         embedding=embeddings,
@@ -70,7 +71,6 @@ def inicializar_or_cargar_rag():
     rag_chain = create_retrieval_chain(retriever, question_answer_chain)
     
     return rag_chain
-
 # Función inteligente para asociar la imagen correcta según el vehículo y la pieza mencionada
 def obtener_imagen_repuesto(pregunta: str):
     p = pregunta.lower()
