@@ -1,0 +1,9 @@
+Catálogo Técnico de Repuestos y Equivalencias Automotrices.
+Vehículo: Mazda 3 (Segunda Generación, 2010-2013).
+- Pastillas de freno delanteras OEM: Código MZ-301FR. Equivalencia Bosch: BP-450. Equivalencia Denso: DN-991.
+- Bomba de gasolina eléctrica: Código OEM MZ-PUMP-25. Presión de trabajo: 3.5 bar. Compatible con motores 2.0L y 2.5L DOHC.
+- Amortiguadores delanteros: Código MZ-STRUT-F. Torque de apriete superior: 45 Nm.
+
+Vehículo: Toyota Corolla (E170, 2014-2019).
+- Pastillas de freno delanteras OEM: Código TY-C140. Equivalencia Akebono: ACT-1211.
+- Bujías de Iridio: Código TY-SPARK-04. Calibración recomendada: 1.1 mm.
