@@ -144,4 +144,4 @@ if pregunta_usuario:
                 "contenido": respuesta, 
                 "imagen": url_img, 
                 "caption": caption_img
-            })s
+            })
