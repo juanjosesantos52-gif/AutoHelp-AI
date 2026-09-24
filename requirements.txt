@@ -1,9 +1,11 @@
 streamlit
-langchain
+google-generativeai
 langchain-community
-langchain-core
 langchain-chroma
-chromadb
+langchain-text-splitters
 sentence-transformers
-langchain-google-genai==2.0.8
-google-generativeai==0.8.3
+fastapi
+uvicorn
+python-multipart
+pydantic
+pillow
