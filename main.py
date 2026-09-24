@@ -6,6 +6,7 @@ Variable de entorno requerida: GOOGLE_API_KEY
 import base64
 import os
 import re
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -21,8 +22,8 @@ BASE = Path(__file__).parent
 API_KEY = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
 client = genai.Client(api_key=API_KEY) if API_KEY else None
 
-# gemini-1.5-* ya fue apagado por Google: por eso daba NotFound. Se prueban en orden.
-MODELOS_PREFERIDOS = ["gemini-3.6-flash", "gemini-2.5-flash", "gemini-flash-latest"]
+# gemini-1.5-* está apagado y gemini-2.5-flash ya no se ofrece a cuentas nuevas (404). Se prueban en orden.
+MODELOS_PREFERIDOS = ["gemini-3.8-flash", "gemini-3.6-flash", "gemini-3.5-flash-lite", "gemini-flash-latest"]
 MODELO_EMBEDDING = "gemini-embedding-001"
 CATALOGO = BASE / "catalogo_repuestos.txt"
 
@@ -105,13 +106,19 @@ def parsear_imagen(data_url):
 def generar(prompt, imagen=None):
     contenido = [prompt] + ([imagen] if imagen else [])
     for nombre in MODELOS_PREFERIDOS:
-        try:
-            r = client.models.generate_content(model=nombre, contents=contenido)
-            if r.text:
-                return r.text
-        except Exception as e:
-            print(f"[Gemini] {nombre} falló: {e}")
-    raise HTTPException(status_code=502, detail="No se pudo generar la respuesta con Gemini. Revisa los logs de Render y tu GOOGLE_API_KEY.")
+        for intento in range(2):
+            try:
+                r = client.models.generate_content(model=nombre, contents=contenido)
+                if r.text:
+                    return r.text
+                break
+            except Exception as e:
+                print(f"[Gemini] {nombre} (intento {intento + 1}) falló: {e}")
+                temporal = any(c in str(e) for c in ("503", "429", "UNAVAILABLE", "RESOURCE_EXHAUSTED"))
+                if not temporal:
+                    break  # 404 u otro error: pasar al siguiente modelo
+                time.sleep(2)  # saturación temporal: reintenta una vez
+    raise HTTPException(status_code=502, detail="Gemini no pudo responder ahora mismo (modelo saturado o no disponible). Intenta de nuevo en unos segundos.")
 
 
 # ---------- Extras del catálogo (igual que en la versión Streamlit) ----------
