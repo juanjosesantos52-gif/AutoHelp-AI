@@ -1,11 +1,6 @@
-streamlit
-google-generativeai
-langchain-community
-langchain-chroma
-langchain-text-splitters
-sentence-transformers
 fastapi
 uvicorn
 python-multipart
-pydantic
+google-generativeai
 pillow
+numpy
