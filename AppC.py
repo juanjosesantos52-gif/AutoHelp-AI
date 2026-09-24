@@ -1,39 +1,28 @@
 import os
-import threading
-import uvicorn
-import streamlit as st
-import google.generativeai as genai
-from langchain_community.document_loaders import TextLoader
-from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_chroma import Chroma
-from langchain_community.embeddings import HuggingFaceEmbeddings
+import io
+import numpy as np
+from typing import Optional
 from PIL import Image
 
 # Importaciones de FastAPI
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from typing import List, Optional
 
-# --- CONFIGURACIÓN DE LA API KEY DE GOOGLE ---
-if "GOOGLE_API_KEY" in st.secrets:
-    os.environ["GOOGLE_API_KEY"] = st.secrets["GOOGLE_API_KEY"]
-    genai.configure(api_key=st.secrets["GOOGLE_API_KEY"])
+# Librería ligera oficial de Google Gemini
+import google.generativeai as genai
 
-st.set_page_config(
-    page_title="AutoPartes AI - Buscador Global Multimarca",
-    page_icon="🚗",
-    layout="wide"
-)
+# --- CONFIGURACIÓN DE API KEY ---
+API_KEY = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+if API_KEY:
+    genai.configure(api_key=API_KEY)
 
 MODELOS_PREFERIDOS = [
     "gemini-1.5-flash",
     "gemini-1.5-pro",
 ]
 
-DIRECTORIO_DB = "./chroma_db_repuestos"
-
-# --- LISTA COMPLETA Y GLOBAL DE MARCAS DEL MUNDO ---
+# --- LISTA COMPLETA Y GLOBAL DE MARCAS DEL MUNDO (CONSERVADA INTACTA) ---
 MARCAS_GLOBALES = {
     "🇺🇸 Norteamérica (EE.UU., Canadá, México)": [
         "Acura", "Buick", "Cadillac", "Chevrolet", "Chrysler", "Dodge", "Eagle", "Ford", 
@@ -89,149 +78,55 @@ MARCAS_GLOBALES = {
     ]
 }
 
-# --- CONFIGURACIÓN DE FASTAPI BACKEND ---
-api = FastAPI(
-    title="AutoPartes AI Backend API",
-    description="API REST para consumo del catálogo global, búsqueda de tiendas y diagnóstico multimodal.",
-    version="1.0.0"
-)
+# --- DOCUMENTOS Y RAG ULTRA-LIGERO (<30MB RAM) ---
+DOCUMENTOS_CATALOGO = [
+    "Catálogo Técnico Universal de Repuestos y Equivalencias Automotrices e Industriales.",
+    "Mazda 3 (2010-2013): Pastillas delanteras OEM: MZ-301FR / Bosch: BP-450.",
+    "Toyota Corolla (2014-2019): Pastillas delanteras OEM: TY-C140 / Akebono: ACT-1211.",
+    "Ford Mustang (2015+): Pastillas delanteras OEM: FR-BRK-15 / Brembo: P-59-088.",
+    "Freightliner Cascadia (DD15): Filtro de Aceite OEM: A4721800609 / Donaldson: P550821.",
+    "BYD Han / Tang: Pastillas de freno Brembo OEM: BYD-BRK-EV9 / Bosch EV Grade.",
+    "Volvo FH / VNL: Filtro de Combustible OEM: 21707133 / Fleetguard: FF5785."
+]
 
-api.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+EMBEDDINGS_CACHE = []
 
-class ChatRequest(BaseModel):
-    message: str
-    region: Optional[str] = None
-    brand: Optional[str] = None
-    model: Optional[str] = None
-    year: Optional[int] = None
-
-@api.get("/api/health")
-def api_health():
-    return {"status": "online", "message": "Backend API corriendo junto a Streamlit."}
-
-@api.get("/api/brands")
-def api_get_brands():
-    return {"categories": MARCAS_GLOBALES}
-
-@api.post("/api/chat")
-def api_chat(req: ChatRequest):
-    info_vehiculo = f"{req.brand or ''} {req.model or ''} ({req.year or ''})".strip()
-    return {
-        "reply": f"Solicitud recibida para {info_vehiculo}: {req.message}",
-        "vehicle": info_vehiculo,
-        "status": "success"
-    }
-
-def run_fastapi():
-    uvicorn.run(api, host="0.0.0.0", port=8000, log_level="error")
-
-# Iniciar FastAPI en segundo plano para que no bloquee la interfaz de Streamlit
-@st.cache_resource
-def start_backend_thread():
-    thread = threading.Thread(target=run_fastapi, daemon=True)
-    thread.start()
-
-start_backend_thread()
-
-# --- BARRA LATERAL (SIDEBAR) ---
-with st.sidebar:
-    st.image("https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&w=600&q=80",
-             caption="AutoPartes AI - Catálogo Global",
-             use_container_width=True)
-    st.markdown("### 🛠️ Panel de Control")
-    st.info("Sistema RAG Híbrido Multimarca: Cobertura Global de Autos, Lujo, EV y Camiones.")
-    st.success("🟢 API REST Backend activa en el puerto 8000 (`/api/health`)")
-    
-    st.markdown("#### 🚘 Garaje Virtual Global")
-    
-    region_sel = st.selectbox("1. Selecciona Región o Tipo:", list(MARCAS_GLOBALES.keys()))
-    marca_sel = st.selectbox("2. Selecciona la Marca Exacta:", MARCAS_GLOBALES[region_sel])
-    
-    modelo_vehiculo = st.text_input("3. Modelo (ej. Civic, Mustang, Cascadia, F-150):", "")
-    año_vehiculo = st.number_input("4. Año del Vehículo / Camión:", min_value=1950, max_value=2027, value=2020)
-    
-    st.divider()
-    st.markdown("**Proyecto de Examen:** IA Aplicada 🎓")
-
-col1, col2 = st.columns([4, 1])
-with col1:
-    st.title("🚗🚛 AutoPartes AI: Buscador Universal de Repuestos")
-    st.markdown("Asistente inteligente con recuperación técnica para todas las marcas mundiales, comerciales e industriales.")
-
-with col2:
-    st.image("https://images.unsplash.com/photo-1584345604476-8ec5e12e42dd?auto=format&fit=crop&w=300&q=80",
-             use_container_width=True)
-
-def elegir_modelo() -> str:
+def inicializar_rag():
+    global EMBEDDINGS_CACHE
+    if not API_KEY or EMBEDDINGS_CACHE:
+        return
     try:
-        disponibles = {
-            m.name.replace("models/", "")
-            for m in genai.list_models()
-            if "generateContent" in m.supported_generation_methods
-        }
-    except Exception:
-        disponibles = set()
-
-    for nombre in MODELOS_PREFERIDOS:
-        if nombre in disponibles:
-            return nombre
-    return "gemini-1.5-flash"
-
-@st.cache_resource
-def inicializar_or_cargar_rag():
-    catalogo_default = "catalogo_repuestos.txt"
-
-    if not os.path.exists(catalogo_default):
-        with open(catalogo_default, "w", encoding="utf-8") as f:
-            f.write(
-                "Catálogo Técnico Universal de Repuestos y Equivalencias Automotrices e Industriales.\n"
-                "Mazda 3 (2010-2013): Pastillas delanteras OEM: MZ-301FR / Bosch: BP-450.\n"
-                "Toyota Corolla (2014-2019): Pastillas delanteras OEM: TY-C140 / Akebono: ACT-1211.\n"
-                "Ford Mustang (2015+): Pastillas delanteras OEM: FR-BRK-15 / Brembo: P-59-088.\n"
-                "Freightliner Cascadia (DD15): Filtro de Aceite OEM: A4721800609 / Donaldson: P550821.\n"
-                "BYD Han / Tang: Pastillas de freno Brembo OEM: BYD-BRK-EV9 / Bosch EV Grade.\n"
-                "Volvo FH / VNL: Filtro de Combustible OEM: 21707133 / Fleetguard: FF5785.\n"
+        for doc in DOCUMENTOS_CATALOGO:
+            res = genai.embed_content(
+                model="models/text-embedding-004",
+                content=doc
             )
+            EMBEDDINGS_CACHE.append(res['embedding'])
+    except Exception as e:
+        print(f"Error inicializando embeddings RAG: {e}")
 
-    loader = TextLoader(catalogo_default, encoding="utf-8")
-    documentos = loader.load()
+def buscar_contexto_rag(query: str, k: int = 3) -> str:
+    if not API_KEY or not EMBEDDINGS_CACHE:
+        return "\n".join(DOCUMENTOS_CATALOGO)
+    try:
+        q_res = genai.embed_content(
+            model="models/text-embedding-004",
+            content=query
+        )
+        q_vec = np.array(q_res['embedding'])
+        
+        similitudes = []
+        for doc_vec in EMBEDDINGS_CACHE:
+            d_vec = np.array(doc_vec)
+            score = np.dot(q_vec, d_vec) / (np.linalg.norm(q_vec) * np.linalg.norm(d_vec))
+            similitudes.append(score)
+            
+        indices = np.argsort(similitudes)[-k:][::-1]
+        return "\n\n".join([DOCUMENTOS_CATALOGO[i] for i in indices])
+    except Exception:
+        return "\n\n".join(DOCUMENTOS_CATALOGO[:3])
 
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=400, chunk_overlap=40)
-    chunks = text_splitter.split_documents(documentos)
-
-    embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-    vector_store = Chroma.from_documents(
-        documents=chunks,
-        embedding=embeddings,
-        persist_directory=DIRECTORIO_DB
-    )
-
-    retriever = vector_store.as_retriever(search_kwargs={"k": 3})
-    nombre_modelo = elegir_modelo()
-    model = genai.GenerativeModel(nombre_modelo)
-    return retriever, model, nombre_modelo
-
-def generar_respuesta_estructurada(model, nombre_modelo: str, prompt_final: str, imagen=None):
-    candidatos = [nombre_modelo] + [m for m in MODELOS_PREFERIDOS if m != nombre_modelo]
-    
-    for nombre in candidatos:
-        try:
-            m = genai.GenerativeModel(nombre)
-            inputs = [prompt_final]
-            if imagen:
-                inputs.append(imagen)
-            response = m.generate_content(inputs)
-            return response.text
-        except Exception:
-            continue
-    return "⚠️ No se pudo procesar la solicitud con el modelo activo."
-
+# --- FUNCIONES AUXILIARES (TIENDAS E IMÁGENES) ---
 def obtener_imagen_repuesto(pregunta: str):
     p = pregunta.lower()
     if any(k in p for k in ["camion", "freightliner", "kenworth", "peterbilt", "volvo truck", "man", "scania", "iveco", "mack", "howo"]):
@@ -242,7 +137,7 @@ def obtener_imagen_repuesto(pregunta: str):
         return "https://images.unsplash.com/photo-1508974239320-0a029497e820?auto=format&fit=crop&w=600&q=80", "Pieza de Repuesto Sugerida"
 
 def obtener_tiendas_recomendadas(pregunta: str, region: str, marca: str) -> str:
-    p = (pregunta + " " + region + " " + marca).lower()
+    p = (pregunta + " " + str(region) + " " + str(marca)).lower()
     tiendas = []
     
     if "camione" in p or "heavy" in p or any(k in p for k in ["freightliner", "kenworth", "peterbilt", "international", "volvo truck", "mack", "scania", "man", "iveco"]):
@@ -266,76 +161,115 @@ def obtener_tiendas_recomendadas(pregunta: str, region: str, marca: str) -> str:
     formato += "\n💡 *Consejo de experto:* Copia el número de parte OEM de la tabla técnica y pégalo en la barra de búsqueda de las tiendas indicadas para garantizar 100% de compatibilidad."
     return formato
 
-with st.spinner("Cargando base de datos multimarca global..."):
-    retriever, model, nombre_modelo = inicializar_or_cargar_rag()
+def elegir_modelo() -> str:
+    try:
+        disponibles = {
+            m.name.replace("models/", "")
+            for m in genai.list_models()
+            if "generateContent" in m.supported_generation_methods
+        }
+    except Exception:
+        disponibles = set()
 
-st.sidebar.caption(f"Modelo en ejecucion: {nombre_modelo}")
-st.divider()
+    for nombre in MODELOS_PREFERIDOS:
+        if nombre in disponibles:
+            return nombre
+    return "gemini-1.5-flash"
 
-# --- INTERFAZ PRINCIPAL DE BÚSQUEDA ---
-st.subheader("💬 Asistente de Consulta y Diagnóstico Universal")
+def generar_respuesta_estructurada(nombre_modelo: str, prompt_final: str, imagen=None):
+    candidatos = [nombre_modelo] + [m for m in MODELOS_PREFERIDOS if m != nombre_modelo]
+    
+    for nombre in candidatos:
+        try:
+            m = genai.GenerativeModel(nombre)
+            inputs = [prompt_final]
+            if imagen:
+                inputs.append(imagen)
+            response = m.generate_content(inputs)
+            return response.text
+        except Exception:
+            continue
+    return "⚠️ No se pudo procesar la solicitud con el modelo activo."
 
-imagen_subida = st.file_uploader("📷 Adjunta una foto de la pieza rota o desgastada (opcional):", type=["jpg", "jpeg", "png"])
-if imagen_subida:
-    img_preview = Image.open(imagen_subida)
-    st.image(img_preview, caption="Imagen adjuntada por el usuario", width=250)
+# --- SERVIDOR FASTAPI ---
+app = FastAPI(title="AutoPartes AI Backend API", version="1.0.0")
 
-if "mensajes" not in st.session_state:
-    st.session_state.mensajes = []
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-for mensaje in st.session_state.mensajes:
-    with st.chat_message(mensaje["rol"]):
-        st.markdown(mensaje["contenido"])
-        if "imagen" in mensaje and mensaje["imagen"]:
-            st.image(mensaje["imagen"], width=350, caption=mensaje.get("caption", ""))
+@app.on_event("startup")
+def startup_event():
+    inicializar_rag()
 
-pregunta_usuario = st.chat_input("Ej: ¿Qué pastillas de freno y filtro le sirven a mi auto?")
+@app.get("/api/health")
+def api_health():
+    return {"status": "online", "message": "Backend API corriendo en Render."}
 
-if pregunta_usuario:
-    st.session_state.mensajes.append({"rol": "user", "contenido": pregunta_usuario})
-    with st.chat_message("user"):
-        st.markdown(pregunta_usuario)
+@app.get("/api/brands")
+def api_get_brands():
+    return {"categories": MARCAS_GLOBALES}
 
-    with st.chat_message("assistant"):
-        with st.spinner("Buscando en catálogos globales y analizando proveedores..."):
-            
-            info_vehiculo = f"{marca_sel} {modelo_vehiculo} ({año_vehiculo})".strip()
-            consulta_rag = f"{pregunta_usuario} {info_vehiculo}"
-                
-            docs_relacionados = retriever.invoke(consulta_rag)
-            contexto_texto = "\n\n".join([doc.page_content for doc in docs_relacionados])
+@app.post("/api/chat")
+async def api_chat(
+    message: str = Form(...),
+    region: Optional[str] = Form(None),
+    brand: Optional[str] = Form(None),
+    model: Optional[str] = Form(None),
+    year: Optional[str] = Form(None),
+    file: Optional[UploadFile] = File(None)
+):
+    if not API_KEY:
+        raise HTTPException(status_code=500, detail="GEMINI_API_KEY / GOOGLE_API_KEY no encontrada en las variables del entorno.")
 
-            prompt_final = f"""
-            Eres un mecánico master y especialista senior en catálogo de repuestos automotrices globales.
-            Analiza el contexto y responde la consulta para el vehículo especificado.
+    info_vehiculo = f"{brand or ''} {model or ''} ({year or ''})".strip()
+    consulta_rag = f"{message} {info_vehiculo}"
+    
+    contexto_texto = buscar_contexto_rag(consulta_rag)
 
-            Contexto del Catálogo Local:
-            {contexto_texto}
+    prompt_final = f"""
+    Eres un mecánico master y especialista senior en catálogo de repuestos automotrices globales.
+    Analiza el contexto y responde la consulta para el vehículo especificado.
 
-            Vehículo / Camión Seleccionado: {info_vehiculo} (Origen/Clase: {region_sel})
-            Consulta del Usuario: {pregunta_usuario}
+    Contexto del Catálogo Local:
+    {contexto_texto}
 
-            INSTRUCCIONES DE RESPUESTA:
-            1. Responde con precisión técnica en formato Markdown.
-            2. Incluye una tabla o lista detallada con:
-               - Nombre técnico exacto de la pieza.
-               - Código de pieza OEM y equivalencias comerciales (Bosch, Denso, Donaldson, Brembo, Fleetguard, Akebono, etc.).
-               - Recomendación de torque o instalación si aplica.
-            """
+    Vehículo / Camión Seleccionado: {info_vehiculo if info_vehiculo else 'No especificado'} (Origen/Clase: {region or 'General'})
+    Consulta del Usuario: {message}
 
-            imagen_pil = Image.open(imagen_subida) if imagen_subida else None
-            respuesta_tecnica = generar_respuesta_estructurada(model, nombre_modelo, prompt_final, imagen_pil)
-            informacion_tiendas = obtener_tiendas_recomendadas(pregunta_usuario, region_sel, marca_sel)
-            
-            respuesta_completa = f"{respuesta_tecnica}\n\n---\n{informacion_tiendas}"
-            url_img, caption_img = obtener_imagen_repuesto(pregunta_usuario + " " + marca_sel)
+    INSTRUCCIONES DE RESPUESTA:
+    1. Responde con precisión técnica en formato Markdown.
+    2. Incluye una tabla o lista detallada con:
+       - Nombre técnico exacto de la pieza.
+       - Código de pieza OEM y equivalencias comerciales (Bosch, Denso, Donaldson, Brembo, Fleetguard, Akebono, etc.).
+       - Recomendación de torque o instalación si aplica.
+    """
 
-            st.markdown(respuesta_completa)
-            st.image(url_img, width=380, caption=caption_img)
+    imagen_pil = None
+    if file:
+        img_bytes = await file.read()
+        imagen_pil = Image.open(io.BytesIO(img_bytes))
 
-            st.session_state.mensajes.append({
-                "rol": "assistant",
-                "contenido": respuesta_completa,
-                "imagen": url_img,
-                "caption": caption_img
-            })
+    nombre_modelo = elegir_modelo()
+    respuesta_tecnica = generar_respuesta_estructurada(nombre_modelo, prompt_final, imagen_pil)
+    informacion_tiendas = obtener_tiendas_recomendadas(message, region or "", brand or "")
+    
+    respuesta_completa = f"{respuesta_tecnica}\n\n---\n{informacion_tiendas}"
+    url_img, caption_img = obtener_imagen_repuesto(message + " " + (brand or ""))
+
+    return {
+        "reply": respuesta_completa,
+        "vehicle": info_vehiculo,
+        "image_url": url_img,
+        "image_caption": caption_img,
+        "status": "success"
+    }
+
+if __name__ == "__main__":
+    import uvicorn
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
