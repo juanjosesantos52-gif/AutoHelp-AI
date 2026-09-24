@@ -1,169 +1,186 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoPartes AI Platform</title>
-    <!-- Cargador CDN de Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoPartes AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+tailwind.config = { theme: { extend: { fontFamily: {
+    display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+    sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif']
+}}}};
+</script>
+<style type="text/tailwindcss">
+@layer components {
+    .card  { @apply bg-slate-900/70 border border-slate-800 backdrop-blur-md rounded-2xl; }
+    .field { @apply w-full rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 transition focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30; }
+    .btn-grad { @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium shadow-lg shadow-blue-600/25 transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed; }
+}
+</style>
+<style>
+    body { background-color: #020617; background-image: linear-gradient(rgba(148,163,184,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.055) 1px, transparent 1px); background-size: 34px 34px; }
+    select.field { color-scheme: dark; }
+    .glow { position: fixed; width: 520px; height: 520px; border-radius: 9999px; filter: blur(130px); opacity: .22; pointer-events: none; z-index: 0; }
+    .scroll-thin::-webkit-scrollbar { width: 6px; }
+    .scroll-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
+    #dropzone.drag { border-color: #60a5fa; background: rgba(59,130,246,.12); box-shadow: 0 0 24px rgba(59,130,246,.25); }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; scroll-behavior: auto !important; } }
+</style>
 </head>
-<body class="bg-gray-100 text-gray-800">
-<!-- NAVIGATION BAR -->
-<header class="bg-slate-900/80 backdrop-blur-md border-b border-slate-800 sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <div class="bg-blue-600 p-2 rounded-xl text-white shadow-lg shadow-blue-500/30">
-                <i data-lucide="wrench" class="w-6 h-6"></i>
-            </div>
-            <div>
-                <span class="text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">AutoPartes AI</span>
-                <span class="text-xs text-slate-400 block -mt-1">Sistema RAG Global & Diagnostics</span>
-            </div>
-        </div>
-        
-        <div class="hidden md:flex items-center gap-6 text-sm text-slate-300 font-medium">
-            <a href="#garaje" class="hover:text-blue-400 transition">Garaje Virtual</a>
-            <a href="#buscador" class="hover:text-blue-400 transition">Buscador RAG</a>
-            <a href="#tiendas" class="hover:text-blue-400 transition">Proveedores</a>
-        </div>
+<body class="font-sans text-slate-200 min-h-screen flex flex-col relative">
 
-        <div class="flex items-center gap-3">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Gemini 1.5 Active
+<div class="glow bg-blue-600 -top-40 -left-40"></div>
+<div class="glow bg-indigo-600 -bottom-48 -right-40"></div>
+
+<!-- NAVBAR -->
+<header class="sticky top-0 z-50 bg-slate-950/70 backdrop-blur-md border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+        <a href="#" class="flex items-center gap-3 shrink-0">
+            <span class="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-600/30">
+                <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
             </span>
-        </div>
+            <span class="font-display text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">AutoPartes AI</span>
+        </a>
+
+        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-400">
+            <a href="#garaje" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/70 transition">Garaje</a>
+            <a href="#buscador" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/70 transition">Buscador RAG</a>
+            <a href="#tiendas" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/70 transition">Proveedores</a>
+        </nav>
+
+        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="relative flex w-2 h-2">
+                <span class="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
+                <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-400"></span>
+            </span>
+            <span class="hidden sm:inline">Gemini 1.5 &amp; RAG Active</span>
+            <span class="sm:hidden">RAG Active</span>
+        </span>
     </div>
 </header>
 
-<!-- MAIN CONTENT CONTAINERS -->
-<main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-    
-    <!-- SIDEBAR: GARAJE VIRTUAL (4 COLS) -->
-    <aside class="lg:col-span-4 space-y-6">
-        
-        <!-- CARD: GARAJE DE VEHÍCULO -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <div class="flex items-center gap-2 mb-4 border-b border-slate-800 pb-3">
-                <i data-lucide="car" class="w-5 h-5 text-blue-400"></i>
-                <h2 class="font-semibold text-slate-200">1. Tu Garaje / Flota Virtual</h2>
-            </div>
+<!-- MAIN -->
+<main class="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-            <div class="space-y-4 text-sm">
+    <!-- PANEL IZQUIERDO -->
+    <aside class="lg:col-span-4 space-y-6">
+
+        <section id="garaje" class="card p-5 scroll-mt-24">
+            <h2 class="font-display font-semibold text-white flex items-center gap-2 mb-4">
+                <i data-lucide="car-front" class="w-5 h-5 text-blue-400"></i> Garaje virtual
+            </h2>
+            <div class="space-y-4">
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Región / Categoría</label>
-                    <select id="regionSelect" onchange="actualizarMarcas()" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+                    <label for="regionSelect" class="block text-xs font-medium text-slate-400 mb-1.5">Región / Categoría</label>
+                    <select id="regionSelect" onchange="actualizarMarcas()" class="field">
                         <option value="usa">🇺🇸 Norteamérica (Ford, Chevy, RAM, Tesla)</option>
                         <option value="jp">🇯🇵 Japón (Toyota, Honda, Nissan, Mazda)</option>
                         <option value="de">🇩🇪 Alemania (BMW, Mercedes, Audi, VW)</option>
                         <option value="cn">🇨🇳 China (BYD, Geely, Chery, Changan)</option>
-                        <option value="trucks">🚚 Camiones Pesados (Freightliner, Kenworth, Volvo)</option>
+                        <option value="trucks">🚚 Camiones pesados (Freightliner, Kenworth, Volvo)</option>
                     </select>
                 </div>
-
                 <div>
-                    <label class="block text-xs font-medium text-slate-400 mb-1">Marca Exacta</label>
-                    <select id="marcaSelect" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
-                        <!-- Inyectado por JS -->
-                    </select>
+                    <label for="marcaSelect" class="block text-xs font-medium text-slate-400 mb-1.5">Marca exacta</label>
+                    <select id="marcaSelect" class="field"></select>
                 </div>
-
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Modelo</label>
-                        <input type="text" id="modeloInput" placeholder="Ej: Mustang / Cascadia" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+                <div class="grid grid-cols-5 gap-3">
+                    <div class="col-span-3">
+                        <label for="modeloInput" class="block text-xs font-medium text-slate-400 mb-1.5">Modelo</label>
+                        <input type="text" id="modeloInput" placeholder="Ej: Mustang, Cascadia" class="field">
                     </div>
-                    <div>
-                        <label class="block text-xs font-medium text-slate-400 mb-1">Año</label>
-                        <input type="number" id="anioInput" value="2020" min="1970" max="2027" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-slate-200 focus:outline-none focus:border-blue-500">
+                    <div class="col-span-2">
+                        <label for="anioInput" class="block text-xs font-medium text-slate-400 mb-1.5">Año</label>
+                        <input type="number" id="anioInput" value="2020" min="1970" max="2027" class="field">
                     </div>
                 </div>
             </div>
-        </div>
+        </section>
 
-        <!-- CARD: DIAGNÓSTICO POR FOTO (MULTIMODAL) -->
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
-            <div class="flex items-center gap-2 mb-3 border-b border-slate-800 pb-3">
-                <i data-lucide="camera" class="w-5 h-5 text-indigo-400"></i>
-                <h2 class="font-semibold text-slate-200">2. Diagnóstico Visual (Foto)</h2>
-            </div>
-            <p class="text-xs text-slate-400 mb-3">Sube la foto de la pieza rota o su código impreso para que la IA la identifique:</p>
-            
-            <div class="border-2 border-dashed border-slate-700 hover:border-blue-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-800/40" onclick="document.getElementById('fileInput').click()">
-                <i data-lucide="upload-cloud" class="w-8 h-8 mx-auto text-slate-400 mb-2"></i>
-                <span class="text-xs text-blue-400 font-medium block">Haz clic para subir imagen</span>
-                <span class="text-[10px] text-slate-500">JPG, PNG o WEBP (Máx 10MB)</span>
-                <input type="file" id="fileInput" class="hidden" accept="image/*" onchange="mostrarPreview(this)">
-            </div>
+        <section class="card p-5">
+            <h2 class="font-display font-semibold text-white flex items-center gap-2 mb-1">
+                <i data-lucide="scan-search" class="w-5 h-5 text-indigo-400"></i> Diagnóstico visual
+            </h2>
+            <p class="text-xs text-slate-400 mb-4">Sube una foto de la pieza o de su código OEM y la IA la identifica.</p>
 
-            <div id="previewContainer" class="hidden mt-3 relative">
-                <img id="imgPreview" src="" class="w-full h-32 object-cover rounded-lg border border-slate-700">
-                <button onclick="quitarImagen()" class="absolute top-2 right-2 bg-red-600/80 text-white p-1 rounded-full text-xs hover:bg-red-600">
+            <label id="dropzone" for="fileInput" tabindex="0"
+                   class="group block cursor-pointer text-center rounded-xl border-2 border-dashed border-blue-500/40 bg-blue-500/5 px-4 py-7 transition hover:border-blue-400 hover:bg-blue-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                <span class="mx-auto mb-3 grid place-items-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 group-hover:scale-105 transition">
+                    <i data-lucide="camera" class="w-6 h-6 text-blue-300"></i>
+                </span>
+                <span class="block text-sm font-medium text-slate-200">Arrastra una foto aquí</span>
+                <span class="block text-xs text-slate-400 mt-1">o <span class="text-blue-400 underline underline-offset-2">elige un archivo</span> · JPG, PNG, WEBP (máx. 10 MB)</span>
+                <input type="file" id="fileInput" class="sr-only" accept="image/*">
+            </label>
+            <p id="dropError" class="text-xs text-red-400 mt-2 empty:hidden" role="alert"></p>
+
+            <div id="previewContainer" class="hidden relative mt-3">
+                <img id="imgPreview" src="" alt="Vista previa de la pieza" class="w-full h-36 object-cover rounded-xl border border-slate-700">
+                <button type="button" onclick="quitarImagen()" aria-label="Quitar imagen"
+                        class="absolute top-2 right-2 grid place-items-center w-7 h-7 rounded-full bg-slate-950/80 text-slate-200 border border-slate-700 hover:bg-red-600 transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
-        </div>
+        </section>
 
+        <section id="tiendas" class="card p-5 scroll-mt-24">
+            <h2 class="font-display font-semibold text-white flex items-center gap-2 mb-3">
+                <i data-lucide="store" class="w-5 h-5 text-emerald-400"></i> Proveedores
+            </h2>
+            <div class="grid grid-cols-2 gap-2 text-sm">
+                <a href="https://www.rockauto.com" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-blue-500 transition">RockAuto <i data-lucide="external-link" class="w-4 h-4 text-slate-500"></i></a>
+                <a href="https://www.finditparts.com" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-blue-500 transition">FinditParts <i data-lucide="external-link" class="w-4 h-4 text-slate-500"></i></a>
+            </div>
+        </section>
     </aside>
 
-    <!-- MAIN INTERACTIVE CHAT & RESULTS PANEL (8 COLS) -->
-    <section class="lg:col-span-8 flex flex-col bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden min-h-[600px]">
-        
-        <!-- CHAT HEADER -->
-        <div class="bg-slate-800/60 p-4 border-b border-slate-800 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></div>
-                <div>
-                    <h3 class="font-medium text-slate-200">Asistente de Repuestos & Diagnóstico</h3>
-                    <p class="text-xs text-slate-400">Consultando catálogos locales y equivalencias mundiales</p>
+    <!-- CHAT RAG -->
+    <section id="buscador" class="lg:col-span-8 card flex flex-col overflow-hidden h-[75vh] min-h-[520px] lg:h-[calc(100vh-8.5rem)] lg:sticky lg:top-[5.5rem] scroll-mt-24">
+
+        <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-slate-900/60">
+            <div class="flex items-center gap-3 min-w-0">
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/30 shrink-0"><i data-lucide="bot" class="w-5 h-5 text-blue-400"></i></span>
+                <div class="min-w-0">
+                    <h2 class="font-display font-semibold text-white truncate">Asistente de Repuestos &amp; Diagnóstico</h2>
+                    <p class="text-xs text-slate-400 truncate">Catálogos locales y equivalencias mundiales</p>
                 </div>
             </div>
-            <button onclick="limpiarChat()" class="text-xs text-slate-400 hover:text-slate-200 flex items-center gap-1">
-                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Limpiar
+            <button type="button" onclick="limpiarChat()" class="shrink-0 flex items-center gap-1.5 text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition">
+                <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Limpiar historial</span>
             </button>
         </div>
 
-        <!-- CHAT MESSAGES AREA -->
-        <div id="chatMessages" class="flex-1 p-6 space-y-6 overflow-y-auto max-h-[500px]">
-            
-            <!-- BOT WELCOME MESSAGE -->
-            <div class="flex gap-4 items-start">
-                <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
-                    <i data-lucide="bot" class="w-5 h-5"></i>
-                </div>
-                <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 max-w-2xl text-sm leading-relaxed space-y-2">
-                    <p class="font-medium text-blue-400">¡Hola! Soy tu asistente mecánico experto en repuestos.</p>
-                    <p class="text-slate-300">Selecciona tu auto o camión en el panel izquierdo y pregúntame sobre cualquier falla, número de pieza OEM o equivalencias comerciales.</p>
-                </div>
+        <div id="chatMessages" class="scroll-thin flex-1 overflow-y-auto scroll-smooth px-4 sm:px-6 py-6 space-y-5" aria-live="polite"></div>
+
+        <div class="border-t border-slate-800 bg-slate-950/60 backdrop-blur-md p-3 sm:p-4">
+            <div id="chips" class="flex gap-2 overflow-x-auto pb-3 text-xs">
+                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-blue-500 hover:text-white transition">Pastillas de freno delanteras</button>
+                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-blue-500 hover:text-white transition">Filtro de aceite y su código OEM</button>
+                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-blue-500 hover:text-white transition">Ruido al frenar, ¿qué pieza es?</button>
             </div>
-
-        </div>
-
-        <!-- CHAT INPUT FORM -->
-        <div class="p-4 border-t border-slate-800 bg-slate-900/90">
-            <form onsubmit="enviarConsulta(event)" class="flex gap-3">
-                <input type="text" id="userInput" placeholder="Ej: ¿Qué pastillas de freno y código OEM le sirven al Mustang GT 2018?" class="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-sm text-slate-200 focus:outline-none focus:border-blue-500 shadow-inner">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-medium px-5 py-3 rounded-xl transition flex items-center gap-2 shadow-lg shadow-blue-600/25">
-                    <span>Buscar</span>
-                    <i data-lucide="send" class="w-4 h-4"></i>
+            <form onsubmit="enviarConsulta(event)" class="flex gap-2 sm:gap-3">
+                <input type="text" id="userInput" autocomplete="off" aria-label="Tu consulta"
+                       placeholder="Pregunta por una pieza, un código OEM o una falla" class="field !py-3">
+                <button type="submit" id="btn-enviar" class="btn-grad shrink-0 flex items-center gap-2 px-4 sm:px-5 rounded-xl">
+                    <span class="hidden sm:inline">Buscar</span><i data-lucide="send" class="w-4 h-4"></i>
                 </button>
             </form>
         </div>
-
     </section>
-
 </main>
 
 <!-- FOOTER -->
-<footer class="bg-slate-900 border-t border-slate-800 py-4 text-center text-xs text-slate-500 mt-auto">
-    AutoPartes AI Platform • Conectado a Gemini 1.5 & ChromaDB Vector Store
+<footer class="relative z-10 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500">
+    AutoPartes AI · Gemini 1.5 &amp; ChromaDB Vector Store · Proyecto de IA Aplicada
 </footer>
 
-<!-- JAVASCRIPT LOGIC -->
 <script>
-    // Inicializar Iconos
-    lucide.createIcons();
+    // Dirección de tu servidor Python (FastAPI / Backend)
+    const SERVIDOR_URL = "http://localhost:8000";
 
-    // Marcas por Región
     const marcasData = {
         usa: ["Ford", "Chevrolet", "RAM", "Dodge", "Jeep", "Tesla", "Cadillac", "GMC"],
         jp: ["Toyota", "Honda", "Nissan", "Mazda", "Subaru", "Lexus", "Mitsubishi", "Isuzu"],
@@ -172,187 +189,147 @@
         trucks: ["Freightliner", "Kenworth", "Peterbilt", "Volvo Trucks", "International", "Mack", "Isuzu Commercial"]
     };
 
+    const $ = id => document.getElementById(id);
+    let imagenBase64 = null; // Imagen subida (data URL en base64)
+
+    const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>').replace(/\n/g, '<br>');
+    const icons = () => lucide.createIcons();
+
+    /* ---------- Garaje ---------- */
     function actualizarMarcas() {
-        const region = document.getElementById("regionSelect").value;
-        const marcaSelect = document.getElementById("marcaSelect");
-        marcaSelect.innerHTML = "";
-        
-        marcasData[region].forEach(m => {
-            const opt = document.createElement("option");
-            opt.value = m;
-            opt.textContent = m;
-            marcaSelect.appendChild(opt);
-        });
+        const sel = $("marcaSelect");
+        sel.innerHTML = "";
+        marcasData[$("regionSelect").value].forEach(m => sel.add(new Option(m, m)));
     }
 
-    function mostrarPreview(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('imgPreview').src = e.target.result;
-                document.getElementById('previewContainer').classList.remove('hidden');
-            }
-            reader.readAsDataURL(input.files[0]);
-        }
+    function getVehiculo() {
+        return {
+            region: $("regionSelect").value,
+            marca: $("marcaSelect").value,
+            modelo: $("modeloInput").value.trim(),
+            año: parseInt($("anioInput").value, 10) || 2020
+        };
+    }
+
+    /* ---------- Imagen (click + drag & drop) ---------- */
+    function procesarArchivo(file) {
+        const err = $("dropError");
+        err.textContent = "";
+        if (!file) return;
+        if (!file.type.startsWith("image/")) { err.textContent = "El archivo debe ser una imagen (JPG, PNG o WEBP)."; return; }
+        if (file.size > 10 * 1024 * 1024) { err.textContent = "La imagen supera los 10 MB."; return; }
+        const reader = new FileReader();
+        reader.onload = e => {
+            imagenBase64 = e.target.result;
+            $("imgPreview").src = imagenBase64;
+            $("previewContainer").classList.remove("hidden");
+        };
+        reader.readAsDataURL(file);
     }
 
     function quitarImagen() {
-        document.getElementById('fileInput').value = "";
-        document.getElementById('previewContainer').classList.add('hidden');
+        imagenBase64 = null;
+        $("fileInput").value = "";
+        $("previewContainer").classList.add("hidden");
     }
 
-    function enviarConsulta(e) {
-        e.preventDefault();
-        const input = document.getElementById("userInput");
-        const mensaje = input.value.trim();
-        if(!mensaje) return;
+    const dz = $("dropzone");
+    $("fileInput").addEventListener("change", e => procesarArchivo(e.target.files[0]));
+    dz.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); $("fileInput").click(); } });
+    ["dragenter", "dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("drag"); }));
+    ["dragleave", "drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("drag"); }));
+    dz.addEventListener("drop", e => procesarArchivo(e.dataTransfer.files[0]));
 
-        const marca = document.getElementById("marcaSelect").value;
-        const modelo = document.getElementById("modeloInput").value || "";
-        const anio = document.getElementById("anioInput").value;
+    /* ---------- Chat ---------- */
+    const botAvatar = `<div class="grid place-items-center w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/30 shrink-0"><i data-lucide="bot" class="w-5 h-5 text-blue-400"></i></div>`;
 
-        // Render Mensaje Usuario
-        const chatContainer = document.getElementById("chatMessages");
-        chatContainer.innerHTML += `
-            <div class="flex gap-4 items-start justify-end">
-                <div class="bg-blue-600 text-white rounded-2xl p-4 max-w-xl text-sm shadow-md">
-                    <p class="font-semibold text-xs text-blue-200 mb-1">Vehículo: ${marca} ${modelo} (${anio})</p>
-                    <p>${mensaje}</p>
-                </div>
-            </div>
-        `;
+    function addRow(html) {
+        const box = $("chatMessages");
+        const row = document.createElement("div");
+        row.innerHTML = html;
+        box.appendChild(row.firstElementChild);
+        icons();
+        box.scrollTop = box.scrollHeight;
+        return box.lastElementChild;
+    }
 
-        input.value = "";
-        chatContainer.scrollTop = chatContainer.scrollHeight;
+    const addBot = (html, tone = "border-slate-700/70") =>
+        addRow(`<div class="flex gap-3 items-start">${botAvatar}<div class="max-w-[85%] sm:max-w-2xl rounded-2xl rounded-tl-sm bg-slate-800/70 border ${tone} px-4 py-3 text-sm leading-relaxed text-slate-300">${html}</div></div>`);
 
-        // Simulación de Respuesta RAG + Tarjetas
-        setTimeout(() => {
-            chatContainer.innerHTML += `
-                <div class="flex gap-4 items-start">
-                    <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
-                        <i data-lucide="bot" class="w-5 h-5"></i>
-                    </div>
-                    <div class="bg-slate-800/90 border border-slate-700/80 rounded-2xl p-5 max-w-2xl text-sm leading-relaxed space-y-4 shadow-xl">
-                        <p class="font-semibold text-emerald-400">✅ Repuesto Encontrado en el Catálogo</p>
-                        
-                        <!-- TABLA / CARD RESULTADO -->
-                        <div class="bg-slate-900 border border-slate-700 rounded-xl p-3 space-y-2">
-                            <div class="flex justify-between items-center border-b border-slate-800 pb-2">
-                                <span class="font-medium text-slate-200">Pieza: Pastillas de Freno Delanteras OEM</span>
-                                <span class="text-xs bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded font-mono">Código: FR-BRK-15</span>
-                            </div>
-                            <p class="text-xs text-slate-400">Compatibilidad directa verificada con especificación de fábrica y equivalencia Brembo Performance P-59-088.</p>
-                        </div>
+    function addUser(texto, v, img) {
+        const auto = [v.marca, v.modelo, `(${v.año})`].filter(Boolean).join(" ");
+        addRow(`<div class="flex justify-end"><div class="max-w-[85%] sm:max-w-xl rounded-2xl rounded-tr-sm bg-gradient-to-br from-blue-500 to-indigo-600 px-4 py-3 text-sm text-white shadow-lg shadow-blue-600/20">
+            <p class="text-xs text-blue-100/80 mb-1 flex items-center gap-1"><i data-lucide="car-front" class="w-3.5 h-3.5"></i>${esc(auto)}</p>
+            ${img ? `<img src="${img}" alt="Foto adjunta" class="w-40 rounded-lg mb-2 border border-white/20">` : ""}
+            <p>${esc(texto)}</p></div></div>`);
+    }
 
-                        <!-- TARJETAS DE PROVEEDORES RECOMMENDED -->
-                        <div class="pt-2">
-                            <p class="font-medium text-slate-300 text-xs mb-2">🛒 Proveedores Disponibles al Mejor Precio:</p>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                                <a href="#" target="_blank" class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-blue-500 transition">
-                                    <div>
-                                        <span class="font-bold text-xs block text-slate-200">RockAuto</span>
-                                        <span class="text-[10px] text-emerald-400">Mejor Precio Garantizado</span>
-                                    </div>
-                                    <i data-lucide="external-link" class="w-4 h-4 text-slate-400"></i>
-                                </a>
-                                <a href="#" target="_blank" class="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-slate-700 hover:border-blue-500 transition">
-                                    <div>
-                                        <span class="font-bold text-xs block text-slate-200">FinditParts</span>
-                                        <span class="text-[10px] text-blue-400">Envío Rápido Express</span>
-                                    </div>
-                                    <i data-lucide="external-link" class="w-4 h-4 text-slate-400"></i>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
-            lucide.createIcons();
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-        }, 1000);
+    const addTyping = () => addRow(`<div class="flex gap-3 items-center">${botAvatar}<div class="flex gap-1.5 rounded-2xl bg-slate-800/70 border border-slate-700/70 px-4 py-3.5">
+        <span class="w-2 h-2 rounded-full bg-blue-400 animate-bounce"></span><span class="w-2 h-2 rounded-full bg-blue-400 animate-bounce [animation-delay:.15s]"></span><span class="w-2 h-2 rounded-full bg-blue-400 animate-bounce [animation-delay:.3s]"></span></div></div>`);
+
+    function bienvenida(titulo, texto) {
+        $("chatMessages").innerHTML = "";
+        addBot(`<p class="font-medium text-blue-400 mb-1">${titulo}</p><p>${texto}</p>`);
     }
 
     function limpiarChat() {
-        document.getElementById("chatMessages").innerHTML = `
-            <div class="flex gap-4 items-start">
-                <div class="w-10 h-10 rounded-xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
-                    <i data-lucide="bot" class="w-5 h-5"></i>
-                </div>
-                <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-4 max-w-2xl text-sm leading-relaxed space-y-2">
-                    <p class="font-medium text-blue-400">Chat reiniciado.</p>
-                    <p class="text-slate-300">Haz una nueva pregunta o selecciona otro vehículo para consultar.</p>
-                </div>
-            </div>
-        `;
-        lucide.createIcons();
+        bienvenida("Historial limpio", "Haz una nueva pregunta o cambia de vehículo en tu garaje.");
     }
 
-    // Cargar marcas iniciales al abrir
-    actualizarMarcas();
-</script>
-<!-- Aquí termina el contenido visual HTML (formularios, botones, chat, etc.) -->
-
-    <!-- INICIO DEL SCRIPT JavaScript -->
-    <script>
-        // 1. Dirección de tu servidor Python (FastAPI / Backend)
-        const SERVIDOR_URL = "http://localhost:8000";
-
-        // 2. Función que conecta el botón de la web con el servidor de Python
-        async function enviarConsultaServidor(preguntaUsuario, vehiculoSeleccionado) {
-            try {
-                const respuesta = await fetch(`${SERVIDOR_URL}/api/chat`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        message: preguntaUsuario,
-                        brand: vehiculoSeleccionado ? vehiculoSeleccionado.marca : "",
-                        model: vehiculoSeleccionado ? vehiculoSeleccionado.modelo : "",
-                        year: vehiculoSeleccionado ? vehiculoSeleccionado.año : 2020
-                    })
-                });
-
-                // Convertimos la respuesta que viene de Python a datos legibles
-                const datos = await respuesta.json();
-                
-                console.log("Respuesta recibida del Backend:", datos);
-                return datos;
-
-            } catch (error) {
-                console.error("Error al conectar con el servidor:", error);
-                alert("No se pudo conectar con el servidor. Verifica que 'app.py' / 'main.py' esté corriendo en la terminal.");
-            }
+    // Conecta la interfaz con el servidor de Python (envía datos del garaje + imagen)
+    async function enviarConsultaServidor(preguntaUsuario, vehiculoSeleccionado, imagen) {
+        try {
+            const respuesta = await fetch(`${SERVIDOR_URL}/api/chat`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    message: preguntaUsuario,
+                    brand: vehiculoSeleccionado ? vehiculoSeleccionado.marca : "",
+                    model: vehiculoSeleccionado ? vehiculoSeleccionado.modelo : "",
+                    year: vehiculoSeleccionado ? vehiculoSeleccionado.año : 2020,
+                    region: vehiculoSeleccionado ? vehiculoSeleccionado.region : "",
+                    image: imagen || null // data URL base64, o null si no hay foto
+                })
+            });
+            if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
+            const datos = await respuesta.json();
+            console.log("Respuesta recibida del Backend:", datos);
+            return datos;
+        } catch (error) {
+            console.error("Error al conectar con el servidor:", error);
+            return null;
         }
+    }
 
-        // 3. Evento para cuando el usuario hace clic en el botón "Buscar" o "Enviar"
-        document.addEventListener("DOMContentLoaded", () => {
-            const botonEnviar = document.getElementById("btn-enviar"); // Asegúrate de que tu botón tenga id="btn-enviar"
-            const inputPregunta = document.getElementById("input-pregunta"); // Asegúrate de que tu input tenga id="input-pregunta"
+    async function enviarConsulta(e) {
+        e.preventDefault();
+        const input = $("userInput"), btn = $("btn-enviar");
+        const texto = input.value.trim();
+        if (!texto) return;
 
-            if (botonEnviar) {
-                botonEnviar.addEventListener("click", async () => {
-                    const textoPregunta = inputPregunta ? inputPregunta.value : "";
-                    if (!textoPregunta.trim()) return;
+        const vehiculo = getVehiculo(), imagen = imagenBase64;
+        addUser(texto, vehiculo, imagen);
+        input.value = "";
+        btn.disabled = true;
+        const typing = addTyping();
 
-                    // Datos del vehículo seleccionado (ejemplo)
-                    const miVehiculo = {
-                        marca: "Mazda",
-                        modelo: "3",
-                        año: 2012
-                    };
+        const datos = await enviarConsultaServidor(texto, vehiculo, imagen);
 
-                    // Llamamos a la función que habla con el servidor
-                    const resultado = await enviarConsultaServidor(textoPregunta, miVehiculo);
-                    
-                    if (resultado) {
-                        alert("Servidor respondió: " + resultado.reply);
-                    }
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+        typing.remove();
+        btn.disabled = false;
+        input.focus();
+        if (datos && datos.reply) {
+            addBot(fmt(datos.reply));
+        } else {
+            addBot(`<p class="font-medium text-red-400 mb-1">No se pudo obtener respuesta</p><p>Revisa que el backend esté corriendo en <span class="font-mono text-slate-200">${esc(SERVIDOR_URL)}</span> y vuelve a intentar.</p>`, "border-red-500/40");
+        }
+    }
+
+    document.querySelectorAll(".chip").forEach(c => c.addEventListener("click", () => { $("userInput").value = c.textContent; $("userInput").focus(); }));
+
+    actualizarMarcas();
+    bienvenida("Hola, soy tu asistente mecánico.", "Elige tu vehículo en el garaje y pregúntame por una falla, un código OEM o una equivalencia. Si tienes una foto de la pieza, súbela y la analizo.");
+</script>
 </body>
 </html>
