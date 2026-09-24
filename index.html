@@ -23,6 +23,11 @@ tailwind.config = { theme: { extend: { fontFamily: {
 <style>
     body { background-color: #020617; background-image: linear-gradient(rgba(148,163,184,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.055) 1px, transparent 1px); background-size: 34px 34px; }
     select.field { color-scheme: dark; }
+    .neon-line { height: 1px; background: linear-gradient(90deg, transparent, #3b82f6, #6366f1, #34d399, transparent); box-shadow: 0 0 12px #3b82f6; }
+    .neon-text { filter: drop-shadow(0 0 10px rgba(96,165,250,.6)); }
+    .neon-card { border-color: rgba(59,130,246,.35) !important; box-shadow: 0 0 0 1px rgba(59,130,246,.15), 0 0 40px -10px rgba(59,130,246,.5); }
+    .neon-dz { box-shadow: inset 0 0 20px rgba(59,130,246,.12), 0 0 18px rgba(99,102,241,.25); }
+    .neon-ok { box-shadow: 0 0 14px rgba(52,211,153,.35); }
     .glow { position: fixed; width: 520px; height: 520px; border-radius: 9999px; filter: blur(130px); opacity: .22; pointer-events: none; z-index: 0; }
     .scroll-thin::-webkit-scrollbar { width: 6px; }
     .scroll-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
@@ -42,7 +47,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
             <span class="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-600/30">
                 <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
             </span>
-            <span class="font-display text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">AutoPartes AI</span>
+            <span class="neon-text font-display text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">AutoPartes AI</span>
         </a>
 
         <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-400">
@@ -51,15 +56,16 @@ tailwind.config = { theme: { extend: { fontFamily: {
             <a href="#tiendas" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/70 transition">Proveedores</a>
         </nav>
 
-        <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="neon-ok inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
             <span class="relative flex w-2 h-2">
                 <span class="absolute inline-flex w-full h-full rounded-full bg-emerald-400 opacity-75 animate-ping"></span>
                 <span class="relative inline-flex w-2 h-2 rounded-full bg-emerald-400"></span>
             </span>
-            <span class="hidden sm:inline">Gemini 1.5 &amp; RAG Active</span>
+            <span class="hidden sm:inline">Gemini &amp; RAG Active</span>
             <span class="sm:hidden">RAG Active</span>
         </span>
     </div>
+    <div class="neon-line"></div>
 </header>
 
 <!-- MAIN -->
@@ -107,7 +113,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
             <p class="text-xs text-slate-400 mb-4">Sube una foto de la pieza o de su código OEM y la IA la identifica.</p>
 
             <label id="dropzone" for="fileInput" tabindex="0"
-                   class="group block cursor-pointer text-center rounded-xl border-2 border-dashed border-blue-500/40 bg-blue-500/5 px-4 py-7 transition hover:border-blue-400 hover:bg-blue-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
+                   class="neon-dz group block cursor-pointer text-center rounded-xl border-2 border-dashed border-blue-500/40 bg-blue-500/5 px-4 py-7 transition hover:border-blue-400 hover:bg-blue-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
                 <span class="mx-auto mb-3 grid place-items-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 group-hover:scale-105 transition">
                     <i data-lucide="camera" class="w-6 h-6 text-blue-300"></i>
                 </span>
@@ -138,7 +144,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
     </aside>
 
     <!-- CHAT RAG -->
-    <section id="buscador" class="lg:col-span-8 card flex flex-col overflow-hidden h-[75vh] min-h-[520px] lg:h-[calc(100vh-8.5rem)] lg:sticky lg:top-[5.5rem] scroll-mt-24">
+    <section id="buscador" class="lg:col-span-8 card neon-card flex flex-col overflow-hidden h-[75vh] min-h-[520px] lg:h-[calc(100vh-8.5rem)] lg:sticky lg:top-[5.5rem] scroll-mt-24">
 
         <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-slate-900/60">
             <div class="flex items-center gap-3 min-w-0">
@@ -174,12 +180,13 @@ tailwind.config = { theme: { extend: { fontFamily: {
 
 <!-- FOOTER -->
 <footer class="relative z-10 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500">
-    AutoPartes AI · Gemini 1.5 &amp; ChromaDB Vector Store · Proyecto de IA Aplicada
+    AutoPartes AI · Gemini &amp; Vector Search · Proyecto de IA Aplicada
 </footer>
 
 <script>
-    // Dirección de tu servidor Python (FastAPI / Backend)
-    const SERVIDOR_URL = "https://autoapp-ai-gwcbvsesmoukk2tpx89ry.streamlit.app";
+    // Dirección del backend (FastAPI). En Render el mismo servicio sirve la página y la API (mismo origen).
+    // Si abres el archivo directo desde tu PC (file://), apunta al servicio de Render.
+    const SERVIDOR_URL = location.protocol.startsWith("http") ? location.origin : "https://autohelpaizzz.onrender.com";
 
     const marcasData = {
         usa: ["Ford", "Chevrolet", "RAM", "Dodge", "Jeep", "Tesla", "Cadillac", "GMC"],
@@ -193,7 +200,31 @@ tailwind.config = { theme: { extend: { fontFamily: {
     let imagenBase64 = null; // Imagen subida (data URL en base64)
 
     const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-    const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>').replace(/\n/g, '<br>');
+    function md(src) {
+        const inline = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>').replace(/`(.+?)`/g, '<code class="px-1 rounded bg-slate-950 text-blue-300">$1</code>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+        const isRow = l => /^\|.*\|$/.test(l.trim());
+        const L = String(src).split("\n");
+        let out = "", i = 0;
+        while (i < L.length) {
+            const l = L[i].trim();
+            if (isRow(l)) {
+                const rows = [];
+                while (i < L.length && isRow(L[i])) rows.push(L[i++].trim());
+                const body = rows.filter(r => !/^\|[\s:|-]+\|$/.test(r));
+                out += '<div class="overflow-x-auto my-2"><table class="w-full text-xs border border-slate-700">' + body.map((r, j) => {
+                    const tag = j ? "td" : "th";
+                    return `<tr class="${j ? "border-t border-slate-700" : "bg-slate-900/80 text-slate-100"}">` + r.slice(1, -1).split("|").map(c => `<${tag} class="px-2.5 py-1.5 text-left align-top">${inline(c.trim())}</${tag}>`).join("") + "</tr>";
+                }).join("") + "</table></div>";
+                continue;
+            }
+            if (/^#{1,6}\s/.test(l)) out += '<p class="font-display font-semibold text-white mt-3 mb-1">' + inline(l.replace(/^#+\s*/, "")) + "</p>";
+            else if (/^[-*]\s+/.test(l)) out += '<p class="pl-4 -indent-3 my-0.5">• ' + inline(l.replace(/^[-*]\s+/, "")) + "</p>";
+            else if (/^---+$/.test(l)) out += '<hr class="my-3 border-slate-700">';
+            else if (l) out += '<p class="my-1">' + inline(l) + "</p>";
+            i++;
+        }
+        return out;
+    }
     const icons = () => lucide.createIcons();
 
     /* ---------- Garaje ---------- */
@@ -292,7 +323,10 @@ tailwind.config = { theme: { extend: { fontFamily: {
                     image: imagen || null // data URL base64, o null si no hay foto
                 })
             });
-            if (!respuesta.ok) throw new Error(`HTTP ${respuesta.status}`);
+            if (!respuesta.ok) {
+                const err = await respuesta.json().catch(() => ({}));
+                return { error: err.detail || `Error HTTP ${respuesta.status}` };
+            }
             const datos = await respuesta.json();
             console.log("Respuesta recibida del Backend:", datos);
             return datos;
@@ -320,7 +354,10 @@ tailwind.config = { theme: { extend: { fontFamily: {
         btn.disabled = false;
         input.focus();
         if (datos && datos.reply) {
-            addBot(fmt(datos.reply));
+            const foto = datos.image_url ? `<img src="${esc(datos.image_url)}" alt="" class="mt-3 w-64 max-w-full rounded-xl border border-slate-700"><p class="text-xs text-slate-500 mt-1">${esc(datos.image_caption || "")}</p>` : "";
+            addBot(md(datos.reply) + foto);
+        } else if (datos && datos.error) {
+            addBot(`<p class="font-medium text-red-400 mb-1">El servidor respondió con un error</p><p>${esc(datos.error)}</p>`, "border-red-500/40");
         } else {
             addBot(`<p class="font-medium text-red-400 mb-1">No se pudo obtener respuesta</p><p>Revisa que el backend esté corriendo en <span class="font-mono text-slate-200">${esc(SERVIDOR_URL)}</span> y vuelve a intentar.</p>`, "border-red-500/40");
         }
