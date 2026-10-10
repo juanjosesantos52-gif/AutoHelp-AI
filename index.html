@@ -6,54 +6,79 @@
 <title>AutoPartes AI</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script>
 tailwind.config = { theme: { extend: { fontFamily: {
-    display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-    sans: ['"IBM Plex Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif']
+    display: ['"Plus Jakarta Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+    sans: ['"Inter"', 'ui-sans-serif', 'system-ui', 'sans-serif']
 }}}};
 </script>
 <style type="text/tailwindcss">
 @layer components {
-    .card  { @apply bg-slate-900/70 border border-slate-800 backdrop-blur-md rounded-2xl; }
-    .field { @apply w-full rounded-xl bg-slate-950/60 border border-slate-800 px-3 py-2.5 text-sm text-slate-100 placeholder-slate-500 transition focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30; }
-    .btn-grad { @apply bg-gradient-to-r from-blue-500 to-indigo-600 text-white font-medium shadow-lg shadow-blue-600/25 transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed; }
+    .card  { @apply bg-neutral-950/80 border border-neutral-900 backdrop-blur-md rounded-2xl; }
+    .field { @apply w-full rounded-xl bg-neutral-950/60 border border-neutral-800 px-3 py-2.5 text-sm text-neutral-100 placeholder-neutral-500 transition focus:outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30; }
+    .btn-grad { @apply bg-gradient-to-r from-emerald-400 to-green-500 text-neutral-950 font-medium shadow-lg shadow-emerald-600/25 transition hover:brightness-110 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed; }
 }
 </style>
 <style>
-    body { background-color: #020617; background-image: linear-gradient(rgba(148,163,184,.055) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,.055) 1px, transparent 1px); background-size: 34px 34px; }
+    html { font-size: 16.5px; }
+    body { -webkit-font-smoothing: antialiased; background-color: #000000; background-image: linear-gradient(rgba(0,230,118,.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,230,118,.03) 1px, transparent 1px); background-size: 34px 34px; }
     select.field { color-scheme: dark; }
-    .neon-line { height: 1px; background: linear-gradient(90deg, transparent, #3b82f6, #6366f1, #34d399, transparent); box-shadow: 0 0 12px #3b82f6; }
-    .neon-text { filter: drop-shadow(0 0 10px rgba(96,165,250,.6)); }
-    .neon-card { border-color: rgba(59,130,246,.35) !important; box-shadow: 0 0 0 1px rgba(59,130,246,.15), 0 0 40px -10px rgba(59,130,246,.5); }
-    .neon-dz { box-shadow: inset 0 0 20px rgba(59,130,246,.12), 0 0 18px rgba(99,102,241,.25); }
+    .neon-line { height: 1px; background: linear-gradient(90deg, transparent, #00e676, #22c55e, #34d399, transparent); box-shadow: 0 0 12px #00e676; }
+    .neon-text { filter: drop-shadow(0 0 10px rgba(0,230,118,.55)); }
+    .neon-card { border-color: rgba(0,230,118,.35) !important; box-shadow: 0 0 0 1px rgba(0,230,118,.15), 0 0 40px -10px rgba(0,230,118,.5); }
+    .neon-dz { box-shadow: inset 0 0 20px rgba(0,230,118,.12), 0 0 18px rgba(34,197,94,.25); }
     .neon-ok { box-shadow: 0 0 14px rgba(52,211,153,.35); }
-    .glow { position: fixed; width: 520px; height: 520px; border-radius: 9999px; filter: blur(130px); opacity: .22; pointer-events: none; z-index: 0; }
+    .glow { position: fixed; width: 520px; height: 520px; border-radius: 9999px; filter: blur(130px); opacity: .1; pointer-events: none; z-index: 0; }
     .scroll-thin::-webkit-scrollbar { width: 6px; }
-    .scroll-thin::-webkit-scrollbar-thumb { background: #334155; border-radius: 9999px; }
-    #dropzone.drag { border-color: #60a5fa; background: rgba(59,130,246,.12); box-shadow: 0 0 24px rgba(59,130,246,.25); }
+    .scroll-thin::-webkit-scrollbar-thumb { background: #166534; border-radius: 9999px; }
+    #dropzone.drag { border-color: #00e676; background: rgba(0,230,118,.12); box-shadow: 0 0 24px rgba(0,230,118,.25); }
+    .mono { font-family: "JetBrains Mono", ui-monospace, monospace; }
+    .cursor { animation: blink 1s steps(2) infinite; }
+    .step { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700; color: #00e676; background: rgba(0,230,118,.1); border: 1px solid rgba(0,230,118,.35); padding: 2px 7px; border-radius: 6px; letter-spacing: .08em; }
+    body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 60; background: repeating-linear-gradient(0deg, rgba(0,0,0,0) 0, rgba(0,0,0,0) 2px, rgba(0,230,118,.025) 3px); }
+    .card { animation: fadeUp .7s cubic-bezier(.2,.8,.2,1) both; transition: border-color .3s, box-shadow .3s, transform .3s; }
+    .card:hover { border-color: rgba(0,230,118,.45); box-shadow: 0 0 30px -8px rgba(0,230,118,.45); }
+    aside section:nth-child(2) { animation-delay: .1s; } aside section:nth-child(3) { animation-delay: .2s; } #buscador { animation-delay: .15s; }
+    .neon-card { animation: fadeUp .7s .15s cubic-bezier(.2,.8,.2,1) both, pulseGlow 4s ease-in-out infinite; }
+    .glow { animation: floaty 12s ease-in-out infinite alternate; }
+    .btn-grad { background-size: 200% 100%; }
+    .btn-grad:hover { background-position: 100% 0; transform: translateY(-1px); box-shadow: 0 0 22px rgba(0,230,118,.55); }
+    .chip:hover { transform: translateY(-2px); box-shadow: 0 6px 18px -6px rgba(0,230,118,.6); }
+    #chatMessages > div { animation: pop .4s cubic-bezier(.2,.8,.2,1) both; }
+    #dropzone > span.grid { animation: floaty 3s ease-in-out infinite alternate; }
+    .stat { background: rgba(0,230,118,.05); border: 1px solid rgba(0,230,118,.25); border-radius: 14px; padding: 12px 16px; transition: transform .3s, box-shadow .3s; }
+    .stat:hover { transform: translateY(-3px); box-shadow: 0 0 22px -4px rgba(0,230,118,.5); }
+    .field:hover, select.field:hover { border-color: rgba(0,230,118,.4); }
+    .rot { transition: opacity .35s, transform .35s; display: inline-block; }
+    .rot.out { opacity: 0; transform: translateY(8px); }
+    @keyframes blink { 50% { opacity: 0; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+    @keyframes pop { from { opacity: 0; transform: translateY(10px) scale(.97); } to { opacity: 1; transform: none; } }
+    @keyframes floaty { from { transform: translate(0,0); } to { transform: translate(40px,-30px); } }
+    @keyframes pulseGlow { 0%,100% { box-shadow: 0 0 0 1px rgba(0,230,118,.15), 0 0 40px -12px rgba(0,230,118,.4); } 50% { box-shadow: 0 0 0 1px rgba(0,230,118,.3), 0 0 60px -6px rgba(0,230,118,.7); } }
     @media (prefers-reduced-motion: reduce) { * { animation: none !important; scroll-behavior: auto !important; } }
 </style>
 </head>
-<body class="font-sans text-slate-200 min-h-screen flex flex-col relative">
+<body class="font-sans text-neutral-200 min-h-screen flex flex-col relative">
 
-<div class="glow bg-blue-600 -top-40 -left-40"></div>
-<div class="glow bg-indigo-600 -bottom-48 -right-40"></div>
+<div class="glow bg-emerald-600 -top-40 -left-40"></div>
+<div class="glow bg-green-600 -bottom-48 -right-40"></div>
 
 <!-- NAVBAR -->
-<header class="sticky top-0 z-50 bg-slate-950/70 backdrop-blur-md border-b border-slate-800">
+<header class="sticky top-0 z-50 bg-black/80 backdrop-blur-md border-b border-neutral-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
         <a href="#" class="flex items-center gap-3 shrink-0">
-            <span class="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 shadow-lg shadow-blue-600/30">
-                <i data-lucide="wrench" class="w-5 h-5 text-white"></i>
+            <span class="grid place-items-center w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-green-500 shadow-lg shadow-emerald-500/30">
+                <i data-lucide="wrench" class="w-5 h-5 text-neutral-950"></i>
             </span>
-            <span class="neon-text font-display text-xl font-bold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">AutoPartes AI</span>
+            <span class="neon-text font-display text-xl font-bold bg-gradient-to-r from-emerald-400 to-green-400 bg-clip-text text-transparent">AutoPartes AI</span>
         </a>
 
-        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-slate-400">
-            <a href="#garaje" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/70 transition">Garaje</a>
-            <a href="#buscador" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/70 transition">Buscador RAG</a>
-            <a href="#tiendas" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/70 transition">Proveedores</a>
+        <nav class="hidden md:flex items-center gap-1 text-sm font-medium text-neutral-400">
+            <a href="#garaje" class="px-3 py-2 rounded-lg hover:text-white hover:bg-neutral-900/80 transition">Garaje</a>
+            <a href="#buscador" class="px-3 py-2 rounded-lg hover:text-white hover:bg-neutral-900/80 transition">Buscador RAG</a>
+            <a href="#tiendas" class="px-3 py-2 rounded-lg hover:text-white hover:bg-neutral-900/80 transition">Proveedores</a>
         </nav>
 
         <span class="neon-ok inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
@@ -68,6 +93,22 @@ tailwind.config = { theme: { extend: { fontFamily: {
     <div class="neon-line"></div>
 </header>
 
+<!-- HERO -->
+<section class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+    <div class="card px-6 py-7 sm:px-10 sm:py-9 flex flex-col lg:flex-row lg:items-center justify-between gap-6 overflow-hidden">
+        <div>
+            <p class="mono text-xs tracking-[.25em] text-emerald-400 mb-3 uppercase">&gt; sistema en línea<span class="cursor">_</span></p>
+            <h1 class="font-display text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">Encuentra <span id="rotWord" class="rot bg-gradient-to-r from-emerald-300 to-green-500 bg-clip-text text-transparent">repuestos</span><br>al instante con IA</h1>
+            <p class="mt-3 text-neutral-400 max-w-xl text-[15px] leading-7">Elige tu vehículo, sube una foto o escribe tu consulta. Búsqueda RAG sobre catálogo local con visión artificial.</p>
+        </div>
+        <div class="grid grid-cols-3 gap-3 shrink-0 text-center">
+            <div class="stat"><i data-lucide="database" class="w-5 h-5 mx-auto text-emerald-400"></i><p class="mono text-[11px] text-neutral-300 mt-2">RAG<br>LOCAL</p></div>
+            <div class="stat"><i data-lucide="scan-eye" class="w-5 h-5 mx-auto text-emerald-400"></i><p class="mono text-[11px] text-neutral-300 mt-2">VISIÓN<br>IA</p></div>
+            <div class="stat"><i data-lucide="globe" class="w-5 h-5 mx-auto text-emerald-400"></i><p class="mono text-[11px] text-neutral-300 mt-2">5<br>REGIONES</p></div>
+        </div>
+    </div>
+</section>
+
 <!-- MAIN -->
 <main class="relative z-10 flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
 
@@ -76,11 +117,11 @@ tailwind.config = { theme: { extend: { fontFamily: {
 
         <section id="garaje" class="card p-5 scroll-mt-24">
             <h2 class="font-display font-semibold text-white flex items-center gap-2 mb-4">
-                <i data-lucide="car-front" class="w-5 h-5 text-blue-400"></i> Garaje virtual
+                <span class="step">01</span><i data-lucide="car-front" class="w-5 h-5 text-emerald-400"></i> Garaje virtual
             </h2>
             <div class="space-y-4">
                 <div>
-                    <label for="regionSelect" class="block text-xs font-medium text-slate-400 mb-1.5">Región / Categoría</label>
+                    <label for="regionSelect" class="block text-xs font-medium text-neutral-400 mb-1.5">Región / Categoría</label>
                     <select id="regionSelect" onchange="actualizarMarcas()" class="field">
                         <option value="usa">🇺🇸 Norteamérica (Ford, Chevy, RAM, Tesla)</option>
                         <option value="jp">🇯🇵 Japón (Toyota, Honda, Nissan, Mazda)</option>
@@ -90,16 +131,16 @@ tailwind.config = { theme: { extend: { fontFamily: {
                     </select>
                 </div>
                 <div>
-                    <label for="marcaSelect" class="block text-xs font-medium text-slate-400 mb-1.5">Marca exacta</label>
+                    <label for="marcaSelect" class="block text-xs font-medium text-neutral-400 mb-1.5">Marca exacta</label>
                     <select id="marcaSelect" class="field"></select>
                 </div>
                 <div class="grid grid-cols-5 gap-3">
                     <div class="col-span-3">
-                        <label for="modeloInput" class="block text-xs font-medium text-slate-400 mb-1.5">Modelo</label>
+                        <label for="modeloInput" class="block text-xs font-medium text-neutral-400 mb-1.5">Modelo</label>
                         <input type="text" id="modeloInput" placeholder="Ej: Mustang, Cascadia" class="field">
                     </div>
                     <div class="col-span-2">
-                        <label for="anioInput" class="block text-xs font-medium text-slate-400 mb-1.5">Año</label>
+                        <label for="anioInput" class="block text-xs font-medium text-neutral-400 mb-1.5">Año</label>
                         <input type="number" id="anioInput" value="2020" min="1970" max="2027" class="field">
                     </div>
                 </div>
@@ -108,25 +149,25 @@ tailwind.config = { theme: { extend: { fontFamily: {
 
         <section class="card p-5">
             <h2 class="font-display font-semibold text-white flex items-center gap-2 mb-1">
-                <i data-lucide="scan-search" class="w-5 h-5 text-indigo-400"></i> Diagnóstico visual
+                <span class="step">02</span><i data-lucide="scan-search" class="w-5 h-5 text-green-400"></i> Diagnóstico visual
             </h2>
-            <p class="text-xs text-slate-400 mb-4">Sube una foto de la pieza o de su código OEM y la IA la identifica.</p>
+            <p class="text-xs text-neutral-400 mb-4">Sube una foto de la pieza o de su código OEM y la IA la identifica.</p>
 
             <label id="dropzone" for="fileInput" tabindex="0"
-                   class="neon-dz group block cursor-pointer text-center rounded-xl border-2 border-dashed border-blue-500/40 bg-blue-500/5 px-4 py-7 transition hover:border-blue-400 hover:bg-blue-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-400">
-                <span class="mx-auto mb-3 grid place-items-center w-12 h-12 rounded-full bg-gradient-to-br from-blue-500/20 to-indigo-500/20 border border-blue-500/30 group-hover:scale-105 transition">
-                    <i data-lucide="camera" class="w-6 h-6 text-blue-300"></i>
+                   class="neon-dz group block cursor-pointer text-center rounded-xl border-2 border-dashed border-emerald-500/40 bg-emerald-500/5 px-4 py-7 transition hover:border-emerald-400 hover:bg-emerald-500/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400">
+                <span class="mx-auto mb-3 grid place-items-center w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500/20 to-green-500/20 border border-emerald-500/30 group-hover:scale-105 transition">
+                    <i data-lucide="camera" class="w-6 h-6 text-emerald-300"></i>
                 </span>
-                <span class="block text-sm font-medium text-slate-200">Arrastra una foto aquí</span>
-                <span class="block text-xs text-slate-400 mt-1">o <span class="text-blue-400 underline underline-offset-2">elige un archivo</span> · JPG, PNG, WEBP (máx. 10 MB)</span>
+                <span class="block text-sm font-medium text-neutral-200">Arrastra una foto aquí</span>
+                <span class="block text-xs text-neutral-400 mt-1">o <span class="text-emerald-400 underline underline-offset-2">elige un archivo</span> · JPG, PNG, WEBP (máx. 10 MB)</span>
                 <input type="file" id="fileInput" class="sr-only" accept="image/*">
             </label>
             <p id="dropError" class="text-xs text-red-400 mt-2 empty:hidden" role="alert"></p>
 
             <div id="previewContainer" class="hidden relative mt-3">
-                <img id="imgPreview" src="" alt="Vista previa de la pieza" class="w-full h-36 object-cover rounded-xl border border-slate-700">
+                <img id="imgPreview" src="" alt="Vista previa de la pieza" class="w-full h-36 object-cover rounded-xl border border-neutral-700">
                 <button type="button" onclick="quitarImagen()" aria-label="Quitar imagen"
-                        class="absolute top-2 right-2 grid place-items-center w-7 h-7 rounded-full bg-slate-950/80 text-slate-200 border border-slate-700 hover:bg-red-600 transition">
+                        class="absolute top-2 right-2 grid place-items-center w-7 h-7 rounded-full bg-neutral-950/80 text-neutral-200 border border-neutral-700 hover:bg-red-600 transition">
                     <i data-lucide="x" class="w-4 h-4"></i>
                 </button>
             </div>
@@ -134,11 +175,11 @@ tailwind.config = { theme: { extend: { fontFamily: {
 
         <section id="tiendas" class="card p-5 scroll-mt-24">
             <h2 class="font-display font-semibold text-white flex items-center gap-2 mb-3">
-                <i data-lucide="store" class="w-5 h-5 text-emerald-400"></i> Proveedores
+                <span class="step">03</span><i data-lucide="store" class="w-5 h-5 text-emerald-400"></i> Proveedores
             </h2>
             <div class="grid grid-cols-2 gap-2 text-sm">
-                <a href="https://www.rockauto.com" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-blue-500 transition">RockAuto <i data-lucide="external-link" class="w-4 h-4 text-slate-500"></i></a>
-                <a href="https://www.finditparts.com" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 p-3 rounded-xl bg-slate-950/50 border border-slate-800 hover:border-blue-500 transition">FinditParts <i data-lucide="external-link" class="w-4 h-4 text-slate-500"></i></a>
+                <a href="https://www.rockauto.com" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 p-3 rounded-xl bg-neutral-950/50 border border-neutral-800 hover:border-emerald-500 transition">RockAuto <i data-lucide="external-link" class="w-4 h-4 text-neutral-500"></i></a>
+                <a href="https://www.finditparts.com" target="_blank" rel="noopener" class="flex items-center justify-between gap-2 p-3 rounded-xl bg-neutral-950/50 border border-neutral-800 hover:border-emerald-500 transition">FinditParts <i data-lucide="external-link" class="w-4 h-4 text-neutral-500"></i></a>
             </div>
         </section>
     </aside>
@@ -146,26 +187,26 @@ tailwind.config = { theme: { extend: { fontFamily: {
     <!-- CHAT RAG -->
     <section id="buscador" class="lg:col-span-8 card neon-card flex flex-col overflow-hidden h-[75vh] min-h-[520px] lg:h-[calc(100vh-8.5rem)] lg:sticky lg:top-[5.5rem] scroll-mt-24">
 
-        <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-slate-800 bg-slate-900/60">
+        <div class="flex items-center justify-between gap-3 px-5 py-4 border-b border-neutral-800 bg-neutral-950/70">
             <div class="flex items-center gap-3 min-w-0">
-                <span class="grid place-items-center w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/30 shrink-0"><i data-lucide="bot" class="w-5 h-5 text-blue-400"></i></span>
+                <span class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 shrink-0"><i data-lucide="bot" class="w-5 h-5 text-emerald-400"></i></span>
                 <div class="min-w-0">
                     <h2 class="font-display font-semibold text-white truncate">Asistente de Repuestos &amp; Diagnóstico</h2>
-                    <p class="text-xs text-slate-400 truncate">Catálogos locales y equivalencias mundiales</p>
+                    <p class="text-xs text-neutral-400 truncate">Catálogos locales y equivalencias mundiales</p>
                 </div>
             </div>
-            <button type="button" onclick="limpiarChat()" class="shrink-0 flex items-center gap-1.5 text-xs text-slate-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-slate-800 transition">
+            <button type="button" onclick="limpiarChat()" class="shrink-0 flex items-center gap-1.5 text-xs text-neutral-400 hover:text-white px-2.5 py-1.5 rounded-lg hover:bg-neutral-800 transition">
                 <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> <span class="hidden sm:inline">Limpiar historial</span>
             </button>
         </div>
 
         <div id="chatMessages" class="scroll-thin flex-1 overflow-y-auto scroll-smooth px-4 sm:px-6 py-6 space-y-5" aria-live="polite"></div>
 
-        <div class="border-t border-slate-800 bg-slate-950/60 backdrop-blur-md p-3 sm:p-4">
+        <div class="border-t border-neutral-800 bg-neutral-950/60 backdrop-blur-md p-3 sm:p-4">
             <div id="chips" class="flex gap-2 overflow-x-auto pb-3 text-xs">
-                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-blue-500 hover:text-white transition">Pastillas de freno delanteras</button>
-                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-blue-500 hover:text-white transition">Filtro de aceite y su código OEM</button>
-                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-slate-700 text-slate-300 hover:border-blue-500 hover:text-white transition">Ruido al frenar, ¿qué pieza es?</button>
+                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-neutral-700 text-neutral-300 hover:border-emerald-500 hover:text-white transition">Pastillas de freno delanteras</button>
+                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-neutral-700 text-neutral-300 hover:border-emerald-500 hover:text-white transition">Filtro de aceite y su código OEM</button>
+                <button type="button" class="chip whitespace-nowrap px-3 py-1.5 rounded-full border border-neutral-700 text-neutral-300 hover:border-emerald-500 hover:text-white transition">Ruido al frenar, ¿qué pieza es?</button>
             </div>
             <form onsubmit="enviarConsulta(event)" class="flex gap-2 sm:gap-3">
                 <input type="text" id="userInput" autocomplete="off" aria-label="Tu consulta"
@@ -179,7 +220,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
 </main>
 
 <!-- FOOTER -->
-<footer class="relative z-10 border-t border-slate-800/80 py-4 px-4 text-center text-xs text-slate-500">
+<footer class="relative z-10 border-t border-neutral-800/80 py-4 px-4 text-center text-xs text-neutral-500">
     AutoPartes AI · Gemini &amp; Vector Search · Proyecto de IA Aplicada
 </footer>
 
@@ -201,7 +242,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
 
     const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     function md(src) {
-        const inline = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>').replace(/`(.+?)`/g, '<code class="px-1 rounded bg-slate-950 text-blue-300">$1</code>').replace(/\*(.+?)\*/g, '<em>$1</em>');
+        const inline = t => esc(t).replace(/\*\*(.+?)\*\*/g, '<strong class="text-white">$1</strong>').replace(/`(.+?)`/g, '<code class="px-1 rounded bg-neutral-950 text-emerald-300">$1</code>').replace(/\*(.+?)\*/g, '<em>$1</em>');
         const isRow = l => /^\|.*\|$/.test(l.trim());
         const L = String(src).split("\n");
         let out = "", i = 0;
@@ -211,15 +252,15 @@ tailwind.config = { theme: { extend: { fontFamily: {
                 const rows = [];
                 while (i < L.length && isRow(L[i])) rows.push(L[i++].trim());
                 const body = rows.filter(r => !/^\|[\s:|-]+\|$/.test(r));
-                out += '<div class="overflow-x-auto my-2"><table class="w-full text-xs border border-slate-700">' + body.map((r, j) => {
+                out += '<div class="overflow-x-auto my-2"><table class="w-full text-xs border border-neutral-700">' + body.map((r, j) => {
                     const tag = j ? "td" : "th";
-                    return `<tr class="${j ? "border-t border-slate-700" : "bg-slate-900/80 text-slate-100"}">` + r.slice(1, -1).split("|").map(c => `<${tag} class="px-2.5 py-1.5 text-left align-top">${inline(c.trim())}</${tag}>`).join("") + "</tr>";
+                    return `<tr class="${j ? "border-t border-neutral-700" : "bg-neutral-900/80 text-neutral-100"}">` + r.slice(1, -1).split("|").map(c => `<${tag} class="px-2.5 py-1.5 text-left align-top">${inline(c.trim())}</${tag}>`).join("") + "</tr>";
                 }).join("") + "</table></div>";
                 continue;
             }
             if (/^#{1,6}\s/.test(l)) out += '<p class="font-display font-semibold text-white mt-3 mb-1">' + inline(l.replace(/^#+\s*/, "")) + "</p>";
             else if (/^[-*]\s+/.test(l)) out += '<p class="pl-4 -indent-3 my-0.5">• ' + inline(l.replace(/^[-*]\s+/, "")) + "</p>";
-            else if (/^---+$/.test(l)) out += '<hr class="my-3 border-slate-700">';
+            else if (/^---+$/.test(l)) out += '<hr class="my-3 border-neutral-700">';
             else if (l) out += '<p class="my-1">' + inline(l) + "</p>";
             i++;
         }
@@ -273,7 +314,7 @@ tailwind.config = { theme: { extend: { fontFamily: {
     dz.addEventListener("drop", e => procesarArchivo(e.dataTransfer.files[0]));
 
     /* ---------- Chat ---------- */
-    const botAvatar = `<div class="grid place-items-center w-9 h-9 rounded-xl bg-blue-500/15 border border-blue-500/30 shrink-0"><i data-lucide="bot" class="w-5 h-5 text-blue-400"></i></div>`;
+    const botAvatar = `<div class="grid place-items-center w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 shrink-0"><i data-lucide="bot" class="w-5 h-5 text-emerald-400"></i></div>`;
 
     function addRow(html) {
         const box = $("chatMessages");
@@ -285,23 +326,23 @@ tailwind.config = { theme: { extend: { fontFamily: {
         return box.lastElementChild;
     }
 
-    const addBot = (html, tone = "border-slate-700/70") =>
-        addRow(`<div class="flex gap-3 items-start">${botAvatar}<div class="max-w-[85%] sm:max-w-2xl rounded-2xl rounded-tl-sm bg-slate-800/70 border ${tone} px-4 py-3 text-sm leading-relaxed text-slate-300">${html}</div></div>`);
+    const addBot = (html, tone = "border-neutral-700/70") =>
+        addRow(`<div class="flex gap-3 items-start">${botAvatar}<div class="max-w-[85%] sm:max-w-2xl rounded-2xl rounded-tl-sm bg-neutral-900/80 border ${tone} px-4 py-3 text-[15px] leading-7 text-neutral-200">${html}</div></div>`);
 
     function addUser(texto, v, img) {
         const auto = [v.marca, v.modelo, `(${v.año})`].filter(Boolean).join(" ");
-        addRow(`<div class="flex justify-end"><div class="max-w-[85%] sm:max-w-xl rounded-2xl rounded-tr-sm bg-gradient-to-br from-blue-500 to-indigo-600 px-4 py-3 text-sm text-white shadow-lg shadow-blue-600/20">
-            <p class="text-xs text-blue-100/80 mb-1 flex items-center gap-1"><i data-lucide="car-front" class="w-3.5 h-3.5"></i>${esc(auto)}</p>
-            ${img ? `<img src="${img}" alt="Foto adjunta" class="w-40 rounded-lg mb-2 border border-white/20">` : ""}
+        addRow(`<div class="flex justify-end"><div class="max-w-[85%] sm:max-w-xl rounded-2xl rounded-tr-sm bg-gradient-to-br from-emerald-400 to-green-500 px-4 py-3 text-[15px] font-medium text-neutral-950 shadow-lg shadow-emerald-500/20">
+            <p class="text-xs text-emerald-950/70 mb-1 flex items-center gap-1"><i data-lucide="car-front" class="w-3.5 h-3.5"></i>${esc(auto)}</p>
+            ${img ? `<img src="${img}" alt="Foto adjunta" class="w-40 rounded-lg mb-2 border border-black/20">` : ""}
             <p>${esc(texto)}</p></div></div>`);
     }
 
-    const addTyping = () => addRow(`<div class="flex gap-3 items-center">${botAvatar}<div class="flex gap-1.5 rounded-2xl bg-slate-800/70 border border-slate-700/70 px-4 py-3.5">
-        <span class="w-2 h-2 rounded-full bg-blue-400 animate-bounce"></span><span class="w-2 h-2 rounded-full bg-blue-400 animate-bounce [animation-delay:.15s]"></span><span class="w-2 h-2 rounded-full bg-blue-400 animate-bounce [animation-delay:.3s]"></span></div></div>`);
+    const addTyping = () => addRow(`<div class="flex gap-3 items-center">${botAvatar}<div class="flex gap-1.5 rounded-2xl bg-neutral-900/80 border border-neutral-700/70 px-4 py-3.5">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-bounce"></span><span class="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:.15s]"></span><span class="w-2 h-2 rounded-full bg-emerald-400 animate-bounce [animation-delay:.3s]"></span></div></div>`);
 
     function bienvenida(titulo, texto) {
         $("chatMessages").innerHTML = "";
-        addBot(`<p class="font-medium text-blue-400 mb-1">${titulo}</p><p>${texto}</p>`);
+        addBot(`<p class="font-medium text-emerald-400 mb-1">${titulo}</p><p>${texto}</p>`);
     }
 
     function limpiarChat() {
@@ -354,12 +395,12 @@ tailwind.config = { theme: { extend: { fontFamily: {
         btn.disabled = false;
         input.focus();
         if (datos && datos.reply) {
-            const foto = datos.image_url ? `<img src="${esc(datos.image_url)}" alt="" class="mt-3 w-64 max-w-full rounded-xl border border-slate-700"><p class="text-xs text-slate-500 mt-1">${esc(datos.image_caption || "")}</p>` : "";
+            const foto = datos.image_url ? `<img src="${esc(datos.image_url)}" alt="" class="mt-3 w-64 max-w-full rounded-xl border border-neutral-700"><p class="text-xs text-neutral-500 mt-1">${esc(datos.image_caption || "")}</p>` : "";
             addBot(md(datos.reply) + foto);
         } else if (datos && datos.error) {
             addBot(`<p class="font-medium text-red-400 mb-1">El servidor respondió con un error</p><p>${esc(datos.error)}</p>`, "border-red-500/40");
         } else {
-            addBot(`<p class="font-medium text-red-400 mb-1">No se pudo obtener respuesta</p><p>Revisa que el backend esté corriendo en <span class="font-mono text-slate-200">${esc(SERVIDOR_URL)}</span> y vuelve a intentar.</p>`, "border-red-500/40");
+            addBot(`<p class="font-medium text-red-400 mb-1">No se pudo obtener respuesta</p><p>Revisa que el backend esté corriendo en <span class="font-mono text-neutral-200">${esc(SERVIDOR_URL)}</span> y vuelve a intentar.</p>`, "border-red-500/40");
         }
     }
 
@@ -367,6 +408,13 @@ tailwind.config = { theme: { extend: { fontFamily: {
 
     actualizarMarcas();
     bienvenida("Hola, soy tu asistente mecánico.", "Elige tu vehículo en el garaje y pregúntame por una falla, un código OEM o una equivalencia. Si tienes una foto de la pieza, súbela y la analizo.");
+</script>
+<script>
+    (function () {
+        const el = document.getElementById("rotWord"); if (!el) return;
+        const w = ["repuestos", "códigos OEM", "equivalencias", "diagnósticos"]; let i = 0;
+        setInterval(() => { el.classList.add("out"); setTimeout(() => { i = (i + 1) % w.length; el.textContent = w[i]; el.classList.remove("out"); }, 350); }, 2400);
+    })();
 </script>
 </body>
 </html>
